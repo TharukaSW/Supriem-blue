@@ -1,0 +1,129 @@
+@use '@angular/material' as mat;
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+// Custom theme
+$primary: mat.m2-define-palette(mat.$m2-indigo-palette);
+$accent: mat.m2-define-palette(mat.$m2-blue-palette);
+
+// Global styles
+.page-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h1 {
+    margin: 0;
+    font-weight: 400;
+    color: #333;
+  }
+}
+
+.mat-mdc-table {
+  width: 100%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  mat-form-field {
+    flex: 1;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  mat-card-header {
+    margin-bottom: 12px;
+  }
+
+  .value {
+    font-size: 2rem;
+    font-weight: 500;
+    color: #3f51b5;
+  }
+
+  .label {
+    color: #666;
+    font-size: 0.875rem;
+  }
+}
+
+.status-chip {
+  &.draft { background-color: #ffc107; color: #000; }
+  &.confirmed { background-color: #2196f3; color: #fff; }
+  &.dispatched { background-color: #9c27b0; color: #fff; }
+  &.delivered { background-color: #4caf50; color: #fff; }
+  &.cancelled { background-color: #f44336; color: #fff; }
+  &.paid { background-color: #4caf50; color: #fff; }
+  &.issued { background-color: #2196f3; color: #fff; }
+}
+
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.text-success { color: #4caf50; }
+.text-danger { color: #f44336; }
+.text-warning { color: #ff9800; }
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.no-data {
+  text-align: center;
+  padding: 48px;
+  color: #666;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .page-container {
+    padding: 16px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}

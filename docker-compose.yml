@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: supreme-blue-api
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://neondb_owner:npg_2XMtIzbBr8pY@ep-red-glitter-a4grikbp-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require
+      DIRECT_URL: postgresql://neondb_owner:npg_2XMtIzbBr8pY@ep-red-glitter-a4grikbp.us-east-1.aws.neon.tech/neondb?sslmode=require
+      JWT_SECRET: supreme-blue-jwt-secret-key-change-in-production
+      JWT_EXPIRES_IN: 15m
+      JWT_REFRESH_SECRET: supreme-blue-refresh-secret-key-change-in-production
+      JWT_REFRESH_EXPIRES_IN: 7d
+      PORT: 3000
+      TZ: Asia/Colombo
+    command: >
+      sh -c "npx prisma migrate deploy && npx prisma generate && npm run start:prod"
+
+  frontend:
+    build: ./frontend
+    container_name: supreme-blue-web
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+
