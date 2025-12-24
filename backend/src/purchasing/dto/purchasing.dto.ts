@@ -16,6 +16,11 @@ export class PurchaseOrderLineDto {
     @IsOptional()
     @IsNumber()
     unitPrice?: number;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsString()
+    overrideReason?: string;
 }
 
 export class CreatePurchaseOrderDto {
@@ -65,6 +70,23 @@ export class UpdatePurchaseOrderDto {
     @IsOptional()
     @IsNumber()
     tax?: number;
+
+    @ApiPropertyOptional({ type: [PurchaseOrderLineDto] })
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => PurchaseOrderLineDto)
+    lines?: PurchaseOrderLineDto[];
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsString()
+    supplierId?: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsString()
+    purchaseDate?: string;
 }
 
 export class ConfirmPurchaseOrderDto {

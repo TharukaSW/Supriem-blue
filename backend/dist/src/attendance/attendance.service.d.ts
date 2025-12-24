@@ -3,11 +3,99 @@ import { AttendanceInOutDto, UpdateManualOtDto, AttendanceQueryDto, CreateSalary
 export declare class AttendanceService {
     private prisma;
     constructor(prisma: PrismaService);
-    clockIn(dto: AttendanceInOutDto, recordedBy: string): Promise<any>;
-    clockOut(dto: AttendanceInOutDto, recordedBy: string): Promise<any>;
-    updateManualOt(attendanceId: bigint, dto: UpdateManualOtDto): Promise<any>;
+    clockIn(dto: AttendanceInOutDto, recordedBy: string): Promise<{
+        attendanceId: any;
+        userId: any;
+        workDate: any;
+        timeIn: any;
+        timeOut: any;
+        systemHours: number;
+        systemOtHours: number;
+        manualOtHours: number;
+        remarks: any;
+        recordedBy: any;
+        createdAt: any;
+        recorder: {
+            userId: any;
+            userCode: any;
+            fullName: any;
+        } | undefined;
+        user: {
+            userId: any;
+            userCode: any;
+            fullName: any;
+        } | undefined;
+    }>;
+    clockOut(dto: AttendanceInOutDto, recordedBy: string): Promise<{
+        attendanceId: any;
+        userId: any;
+        workDate: any;
+        timeIn: any;
+        timeOut: any;
+        systemHours: number;
+        systemOtHours: number;
+        manualOtHours: number;
+        remarks: any;
+        recordedBy: any;
+        createdAt: any;
+        recorder: {
+            userId: any;
+            userCode: any;
+            fullName: any;
+        } | undefined;
+        user: {
+            userId: any;
+            userCode: any;
+            fullName: any;
+        } | undefined;
+    }>;
+    updateManualOt(attendanceId: bigint, dto: UpdateManualOtDto): Promise<{
+        attendanceId: any;
+        userId: any;
+        workDate: any;
+        timeIn: any;
+        timeOut: any;
+        systemHours: number;
+        systemOtHours: number;
+        manualOtHours: number;
+        remarks: any;
+        recordedBy: any;
+        createdAt: any;
+        recorder: {
+            userId: any;
+            userCode: any;
+            fullName: any;
+        } | undefined;
+        user: {
+            userId: any;
+            userCode: any;
+            fullName: any;
+        } | undefined;
+    }>;
     findAllAttendance(query: AttendanceQueryDto): Promise<{
-        data: any[];
+        data: {
+            attendanceId: any;
+            userId: any;
+            workDate: any;
+            timeIn: any;
+            timeOut: any;
+            systemHours: number;
+            systemOtHours: number;
+            manualOtHours: number;
+            remarks: any;
+            recordedBy: any;
+            createdAt: any;
+            recorder: {
+                userId: any;
+                userCode: any;
+                fullName: any;
+            } | undefined;
+            user: {
+                userId: any;
+                userCode: any;
+                fullName: any;
+            } | undefined;
+        }[];
         meta: {
             total: number;
             page: number;
@@ -57,8 +145,8 @@ export declare class AttendanceService {
                 minSalary: import("@prisma/client/runtime/library").Decimal;
                 maxSalary: import("@prisma/client/runtime/library").Decimal;
             } | null;
-            nic: string | null;
             address: string | null;
+            nic: string | null;
             joinedDate: Date | null;
             designation: string | null;
             basicSalary: import("@prisma/client/runtime/library").Decimal;
@@ -97,8 +185,8 @@ export declare class AttendanceService {
             minSalary: import("@prisma/client/runtime/library").Decimal;
             maxSalary: import("@prisma/client/runtime/library").Decimal;
         } | null;
-        nic: string | null;
         address: string | null;
+        nic: string | null;
         joinedDate: Date | null;
         designation: string | null;
         basicSalary: import("@prisma/client/runtime/library").Decimal;

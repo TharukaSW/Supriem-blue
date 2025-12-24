@@ -101,6 +101,191 @@ async function main() {
         });
     }
     console.log('✅ Item categories seeded');
+    const suppliers = [
+        {
+            supplierCode: 'SUP001',
+            supplierName: 'Lanka Plastics (Pvt) Ltd',
+            contactName: 'Rajitha Fernando',
+            phone: '0112345678',
+            email: 'info@lankaplastics.lk',
+            address: 'No. 123, Galle Road, Colombo 03',
+            isActive: true,
+        },
+        {
+            supplierCode: 'SUP002',
+            supplierName: 'Ceylon Cap Manufacturing',
+            contactName: 'Nimal Perera',
+            phone: '0114567890',
+            email: 'sales@ceyloncaps.lk',
+            address: 'Industrial Zone, Ja-Ela',
+            isActive: true,
+        },
+        {
+            supplierCode: 'SUP003',
+            supplierName: 'Pure Water Chemicals Ltd',
+            contactName: 'Sunil Wijeratne',
+            phone: '0117654321',
+            email: 'contact@purewater.lk',
+            address: 'No. 45, Baseline Road, Colombo 09',
+            isActive: true,
+        },
+    ];
+    for (const supplier of suppliers) {
+        await prisma.supplier.upsert({
+            where: { supplierCode: supplier.supplierCode },
+            update: {},
+            create: supplier,
+        });
+    }
+    console.log('✅ Suppliers seeded');
+    const rawMaterialCategory = await prisma.itemCategory.findUnique({
+        where: { categoryName: 'Raw Materials' },
+    });
+    const pcsUnit = await prisma.unit.findUnique({
+        where: { unitName: 'Pieces' },
+    });
+    const kgUnit = await prisma.unit.findUnique({
+        where: { unitName: 'Kilograms' },
+    });
+    if (rawMaterialCategory && pcsUnit && kgUnit) {
+        const items = [
+            {
+                itemCode: 'RAW001',
+                itemName: 'PET Bottle 500ml (Clear)',
+                itemType: client_1.ItemType.RAW,
+                categoryId: rawMaterialCategory.categoryId,
+                unitId: pcsUnit.unitId,
+                isActive: true,
+            },
+            {
+                itemCode: 'RAW002',
+                itemName: 'Bottle Cap (Blue)',
+                itemType: client_1.ItemType.RAW,
+                categoryId: rawMaterialCategory.categoryId,
+                unitId: pcsUnit.unitId,
+                isActive: true,
+            },
+            {
+                itemCode: 'RAW003',
+                itemName: 'Label Sticker (Supreme Blue)',
+                itemType: client_1.ItemType.RAW,
+                categoryId: rawMaterialCategory.categoryId,
+                unitId: pcsUnit.unitId,
+                isActive: true,
+            },
+            {
+                itemCode: 'RAW004',
+                itemName: 'Shrink Film Roll',
+                itemType: client_1.ItemType.RAW,
+                categoryId: rawMaterialCategory.categoryId,
+                unitId: kgUnit.unitId,
+                isActive: true,
+            },
+            {
+                itemCode: 'RAW005',
+                itemName: 'Water Treatment Chemical',
+                itemType: client_1.ItemType.RAW,
+                categoryId: rawMaterialCategory.categoryId,
+                unitId: kgUnit.unitId,
+                isActive: true,
+            },
+        ];
+        for (const item of items) {
+            await prisma.item.upsert({
+                where: { itemCode: item.itemCode },
+                update: {},
+                create: item,
+            });
+        }
+        console.log('✅ Sample RAW items seeded');
+        const supplier1 = await prisma.supplier.findUnique({
+            where: { supplierCode: 'SUP001' },
+        });
+        const supplier2 = await prisma.supplier.findUnique({
+            where: { supplierCode: 'SUP002' },
+        });
+        const supplier3 = await prisma.supplier.findUnique({
+            where: { supplierCode: 'SUP003' },
+        });
+        const item1 = await prisma.item.findUnique({
+            where: { itemCode: 'RAW001' },
+        });
+        const item2 = await prisma.item.findUnique({
+            where: { itemCode: 'RAW002' },
+        });
+        const item3 = await prisma.item.findUnique({
+            where: { itemCode: 'RAW003' },
+        });
+        const item4 = await prisma.item.findUnique({
+            where: { itemCode: 'RAW004' },
+        });
+        const item5 = await prisma.item.findUnique({
+            where: { itemCode: 'RAW005' },
+        });
+        if (supplier1 && supplier2 && supplier3 && item1 && item2 && item3 && item4 && item5) {
+            const prices = [
+                {
+                    supplierId: supplier1.supplierId,
+                    itemId: item1.itemId,
+                    unitPrice: 12.50,
+                    effectiveFrom: new Date('2025-01-01'),
+                    isActive: true,
+                },
+                {
+                    supplierId: supplier1.supplierId,
+                    itemId: item4.itemId,
+                    unitPrice: 450.00,
+                    effectiveFrom: new Date('2025-01-01'),
+                    isActive: true,
+                },
+                {
+                    supplierId: supplier2.supplierId,
+                    itemId: item2.itemId,
+                    unitPrice: 2.50,
+                    effectiveFrom: new Date('2025-01-01'),
+                    isActive: true,
+                },
+                {
+                    supplierId: supplier2.supplierId,
+                    itemId: item3.itemId,
+                    unitPrice: 5.00,
+                    effectiveFrom: new Date('2025-01-01'),
+                    isActive: true,
+                },
+                {
+                    supplierId: supplier3.supplierId,
+                    itemId: item5.itemId,
+                    unitPrice: 850.00,
+                    effectiveFrom: new Date('2025-01-01'),
+                    isActive: true,
+                },
+                {
+                    supplierId: supplier1.supplierId,
+                    itemId: item1.itemId,
+                    unitPrice: 11.75,
+                    effectiveFrom: new Date('2025-12-01'),
+                    isActive: true,
+                },
+            ];
+            for (const price of prices) {
+                const existing = await prisma.supplierItemPrice.findUnique({
+                    where: {
+                        supplierId_itemId_effectiveFrom: {
+                            supplierId: price.supplierId,
+                            itemId: price.itemId,
+                            effectiveFrom: price.effectiveFrom,
+                        },
+                    },
+                });
+                if (!existing) {
+                    await prisma.supplierItemPrice.create({
+                        data: price,
+                    });
+                }
+            }
+            console.log('✅ Supplier prices seeded');
+        }
+    }
     console.log('🎉 Seeding completed!');
 }
 main()

@@ -18,6 +18,7 @@ class PurchaseOrderLineDto {
     itemId;
     qty;
     unitPrice;
+    overrideReason;
 }
 exports.PurchaseOrderLineDto = PurchaseOrderLineDto;
 __decorate([
@@ -36,6 +37,12 @@ __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], PurchaseOrderLineDto.prototype, "unitPrice", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], PurchaseOrderLineDto.prototype, "overrideReason", void 0);
 class CreatePurchaseOrderDto {
     supplierId;
     purchaseDate;
@@ -85,6 +92,9 @@ class UpdatePurchaseOrderDto {
     notes;
     discount;
     tax;
+    lines;
+    supplierId;
+    purchaseDate;
 }
 exports.UpdatePurchaseOrderDto = UpdatePurchaseOrderDto;
 __decorate([
@@ -105,6 +115,26 @@ __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], UpdatePurchaseOrderDto.prototype, "tax", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ type: [PurchaseOrderLineDto] }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.ValidateNested)({ each: true }),
+    (0, class_transformer_1.Type)(() => PurchaseOrderLineDto),
+    __metadata("design:type", Array)
+], UpdatePurchaseOrderDto.prototype, "lines", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdatePurchaseOrderDto.prototype, "supplierId", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdatePurchaseOrderDto.prototype, "purchaseDate", void 0);
 class ConfirmPurchaseOrderDto {
     vendorInvoiceNo;
     vendorInvoiceDate;

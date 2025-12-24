@@ -1,12 +1,21 @@
 import { Module } from '@nestjs/common';
 import { PurchasingService } from './purchasing.service';
-import { PurchasingController } from './purchasing.controller';
-import { MastersModule } from '../masters/masters.module';
+import { PdfService } from './pdf.service';
+import {
+  PurchasingController,
+  PurchaseInvoicesController,
+  PaymentsController,
+} from './purchasing.controller';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
-    imports: [MastersModule],
-    controllers: [PurchasingController],
-    providers: [PurchasingService],
-    exports: [PurchasingService],
+  imports: [PrismaModule],
+  controllers: [
+    PurchasingController,
+    PurchaseInvoicesController,
+    PaymentsController,
+  ],
+  providers: [PurchasingService, PdfService],
+  exports: [PurchasingService],
 })
-export class PurchasingModule { }
+export class PurchasingModule {}

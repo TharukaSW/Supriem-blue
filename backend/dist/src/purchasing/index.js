@@ -17,5 +17,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./purchasing.module"), exports);
 __exportStar(require("./purchasing.service"), exports);
 __exportStar(require("./purchasing.controller"), exports);
+__exportStar(require("./pdf.service"), exports);
 __exportStar(require("./dto"), exports);
 //# sourceMappingURL=index.js.map

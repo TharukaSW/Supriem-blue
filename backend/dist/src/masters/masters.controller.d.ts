@@ -1,5 +1,5 @@
 import { MastersService } from './masters.service';
-import { CreateUnitDto, UpdateUnitDto, CreateCategoryDto, UpdateCategoryDto, CreateItemDto, UpdateItemDto, ItemQueryDto, CreateSupplierDto, UpdateSupplierDto, SupplierQueryDto, CreateCustomerDto, UpdateCustomerDto, CustomerQueryDto, CreateSupplierItemPriceDto, UpdateSupplierItemPriceDto, CreateCustomerItemPriceDto, UpdateCustomerItemPriceDto } from './dto';
+import { CreateUnitDto, UpdateUnitDto, CreateCategoryDto, UpdateCategoryDto, CreateItemDto, UpdateItemDto, ItemQueryDto, CreateSupplierDto, UpdateSupplierDto, SupplierQueryDto, DeactivateSupplierDto, CreateCustomerDto, UpdateCustomerDto, CustomerQueryDto, DeactivateCustomerDto, CreateSupplierItemPriceDto, UpdateSupplierItemPriceDto, SupplierPriceQueryDto, DeactivateSupplierPriceDto, CreateCustomerItemPriceDto, UpdateCustomerItemPriceDto, CustomerPriceQueryDto, DeactivateCustomerPriceDto } from './dto';
 export declare class MastersController {
     private readonly mastersService;
     constructor(mastersService: MastersService);
@@ -61,10 +61,10 @@ export declare class MastersController {
         updatedAt: Date;
         unitId: number | null;
         categoryId: number | null;
+        itemId: bigint;
         itemCode: string;
         itemName: string;
         itemType: import(".prisma/client").$Enums.ItemType;
-        itemId: bigint;
     }>;
     findAllItems(query: ItemQueryDto): Promise<{
         data: any[];
@@ -80,7 +80,7 @@ export declare class MastersController {
     deleteItem(id: string): Promise<{
         message: string;
     }>;
-    createSupplier(dto: CreateSupplierDto): Promise<any>;
+    createSupplier(dto: CreateSupplierDto, user: any): Promise<any>;
     findAllSuppliers(query: SupplierQueryDto): Promise<{
         data: any[];
         meta: {
@@ -90,12 +90,17 @@ export declare class MastersController {
             totalPages: number;
         };
     }>;
-    findOneSupplier(id: string): Promise<any>;
-    updateSupplier(id: string, dto: UpdateSupplierDto): Promise<any>;
+    findOneSupplier(id: string, includePrices?: string): Promise<any>;
+    updateSupplier(id: string, dto: UpdateSupplierDto, user: any): Promise<any>;
+    deactivateSupplier(id: string, dto: DeactivateSupplierDto, user: any): Promise<{
+        message: string;
+        reason: string | undefined;
+        supplier: any;
+    }>;
     deleteSupplier(id: string): Promise<{
         message: string;
     }>;
-    createCustomer(dto: CreateCustomerDto): Promise<any>;
+    createCustomer(dto: CreateCustomerDto, user: any): Promise<any>;
     findAllCustomers(query: CustomerQueryDto): Promise<{
         data: any[];
         meta: {
@@ -105,15 +110,30 @@ export declare class MastersController {
             totalPages: number;
         };
     }>;
-    findOneCustomer(id: string): Promise<any>;
-    updateCustomer(id: string, dto: UpdateCustomerDto): Promise<any>;
+    findOneCustomer(id: string, includePrices?: string): Promise<any>;
+    updateCustomer(id: string, dto: UpdateCustomerDto, user: any): Promise<any>;
+    deactivateCustomer(id: string, dto: DeactivateCustomerDto, user: any): Promise<{
+        message: string;
+        reason: string | undefined;
+        customer: any;
+    }>;
     deleteCustomer(id: string): Promise<{
         message: string;
     }>;
-    createSupplierItemPrice(dto: CreateSupplierItemPriceDto): Promise<any>;
-    findSupplierItemPrices(supplierId?: string, itemId?: string): Promise<any[]>;
-    updateSupplierItemPrice(id: string, dto: UpdateSupplierItemPriceDto): Promise<any>;
-    createCustomerItemPrice(dto: CreateCustomerItemPriceDto): Promise<any>;
-    findCustomerItemPrices(customerId?: string, itemId?: string): Promise<any[]>;
-    updateCustomerItemPrice(id: string, dto: UpdateCustomerItemPriceDto): Promise<any>;
+    createSupplierItemPrice(supplierId: string, dto: CreateSupplierItemPriceDto, user: any): Promise<any>;
+    findSupplierItemPrices(supplierId: string, query: SupplierPriceQueryDto): Promise<any[]>;
+    getSupplierActivePrice(supplierId: string, itemId: string, asOfDate?: string): Promise<any>;
+    updateSupplierItemPrice(supplierId: string, priceId: string, dto: UpdateSupplierItemPriceDto, user: any): Promise<any>;
+    deactivateSupplierItemPrice(supplierId: string, priceId: string, dto: DeactivateSupplierPriceDto, user: any): Promise<{
+        message: string;
+        price: any;
+    }>;
+    createCustomerItemPrice(customerId: string, dto: CreateCustomerItemPriceDto, user: any): Promise<any>;
+    findCustomerItemPrices(customerId: string, query: CustomerPriceQueryDto): Promise<any[]>;
+    getCustomerActivePrice(customerId: string, itemId: string, asOfDate?: string): Promise<any>;
+    updateCustomerItemPrice(customerId: string, priceId: string, dto: UpdateCustomerItemPriceDto, user: any): Promise<any>;
+    deactivateCustomerItemPrice(customerId: string, priceId: string, dto: DeactivateCustomerPriceDto, user: any): Promise<{
+        message: string;
+        price: any;
+    }>;
 }

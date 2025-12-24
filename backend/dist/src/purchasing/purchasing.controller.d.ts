@@ -1,25 +1,1074 @@
+import type { Response } from 'express';
 import { PurchasingService } from './purchasing.service';
-import { CreatePurchaseOrderDto, UpdatePurchaseOrderDto, ConfirmPurchaseOrderDto, PurchaseQueryDto } from './dto';
+import { PdfService } from './pdf.service';
+import { CreatePurchaseOrderDto, UpdatePurchaseOrderDto, CancelPurchaseOrderDto, MatchInvoiceDto, CreatePaymentDto } from './dto';
+import { DocStatus, MatchStatus } from '@prisma/client';
 export declare class PurchasingController {
     private readonly purchasingService;
     constructor(purchasingService: PurchasingService);
-    create(dto: CreatePurchaseOrderDto, user: any): Promise<any>;
-    findAll(query: PurchaseQueryDto): Promise<{
-        data: any[];
-        meta: {
-            total: number;
-            page: number;
-            limit: number;
-            totalPages: number;
+    create(dto: CreatePurchaseOrderDto, req: any): Promise<{
+        supplier: {
+            email: string | null;
+            phone: string | null;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            supplierId: bigint;
+            supplierCode: string;
+            supplierName: string;
+            contactName: string | null;
+            address: string | null;
+            createdBy: bigint | null;
+            updatedBy: bigint | null;
+            deactivatedAt: Date | null;
+            deactivatedBy: bigint | null;
         };
+        lines: ({
+            item: {
+                isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                unitId: number | null;
+                categoryId: number | null;
+                itemId: bigint;
+                itemCode: string;
+                itemName: string;
+                itemType: import(".prisma/client").$Enums.ItemType;
+            };
+        } & {
+            itemId: bigint;
+            unitPrice: import("@prisma/client/runtime/library").Decimal;
+            purchaseId: bigint;
+            qty: import("@prisma/client/runtime/library").Decimal;
+            overrideReason: string | null;
+            priceSource: string;
+            lineTotal: import("@prisma/client/runtime/library").Decimal;
+            overriddenBy: bigint | null;
+            purchaseLineId: bigint;
+        })[];
+    } & {
+        createdAt: Date;
+        updatedAt: Date;
+        supplierId: bigint;
+        createdBy: bigint | null;
+        updatedBy: bigint | null;
+        notes: string | null;
+        total: import("@prisma/client/runtime/library").Decimal;
+        purchaseId: bigint;
+        subtotal: import("@prisma/client/runtime/library").Decimal;
+        discount: import("@prisma/client/runtime/library").Decimal;
+        tax: import("@prisma/client/runtime/library").Decimal;
+        status: import(".prisma/client").$Enums.DocStatus;
+        purchaseNo: string;
+        purchaseDate: Date;
+        confirmedAt: Date | null;
+        confirmedBy: bigint | null;
+        receivedAt: Date | null;
+        receivedBy: bigint | null;
+        cancelledAt: Date | null;
+        cancelledBy: bigint | null;
+        cancelReason: string | null;
     }>;
-    findOne(id: string): Promise<any>;
-    update(id: string, dto: UpdatePurchaseOrderDto): Promise<any>;
-    confirm(id: string, dto: ConfirmPurchaseOrderDto, user: any): Promise<{
-        message: string;
-        invoiceId: string;
+    findAll(search?: string, status?: DocStatus, supplierId?: string, from?: string, to?: string, page?: string, limit?: string): Promise<{
+        data: ({
+            supplier: {
+                email: string | null;
+                phone: string | null;
+                isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                supplierId: bigint;
+                supplierCode: string;
+                supplierName: string;
+                contactName: string | null;
+                address: string | null;
+                createdBy: bigint | null;
+                updatedBy: bigint | null;
+                deactivatedAt: Date | null;
+                deactivatedBy: bigint | null;
+            };
+            lines: ({
+                item: {
+                    isActive: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    unitId: number | null;
+                    categoryId: number | null;
+                    itemId: bigint;
+                    itemCode: string;
+                    itemName: string;
+                    itemType: import(".prisma/client").$Enums.ItemType;
+                };
+            } & {
+                itemId: bigint;
+                unitPrice: import("@prisma/client/runtime/library").Decimal;
+                purchaseId: bigint;
+                qty: import("@prisma/client/runtime/library").Decimal;
+                overrideReason: string | null;
+                priceSource: string;
+                lineTotal: import("@prisma/client/runtime/library").Decimal;
+                overriddenBy: bigint | null;
+                purchaseLineId: bigint;
+            })[];
+        } & {
+            createdAt: Date;
+            updatedAt: Date;
+            supplierId: bigint;
+            createdBy: bigint | null;
+            updatedBy: bigint | null;
+            notes: string | null;
+            total: import("@prisma/client/runtime/library").Decimal;
+            purchaseId: bigint;
+            subtotal: import("@prisma/client/runtime/library").Decimal;
+            discount: import("@prisma/client/runtime/library").Decimal;
+            tax: import("@prisma/client/runtime/library").Decimal;
+            status: import(".prisma/client").$Enums.DocStatus;
+            purchaseNo: string;
+            purchaseDate: Date;
+            confirmedAt: Date | null;
+            confirmedBy: bigint | null;
+            receivedAt: Date | null;
+            receivedBy: bigint | null;
+            cancelledAt: Date | null;
+            cancelledBy: bigint | null;
+            cancelReason: string | null;
+        })[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
     }>;
-    cancel(id: string): Promise<{
-        message: string;
+    findOne(id: string): Promise<{
+        invoices: {
+            createdAt: Date;
+            supplierId: bigint | null;
+            createdBy: bigint | null;
+            total: import("@prisma/client/runtime/library").Decimal;
+            invoiceId: bigint;
+            invoiceNo: string;
+            invoiceType: import(".prisma/client").$Enums.InvoiceType;
+            invoiceDate: Date;
+            dueDate: Date | null;
+            customerId: bigint | null;
+            salesOrderId: bigint | null;
+            purchaseId: bigint | null;
+            subtotal: import("@prisma/client/runtime/library").Decimal;
+            discount: import("@prisma/client/runtime/library").Decimal;
+            tax: import("@prisma/client/runtime/library").Decimal;
+            status: import(".prisma/client").$Enums.DocStatus;
+            printTemplate: string;
+            vendorInvoiceNo: string | null;
+            vendorInvoiceDate: Date | null;
+            vendorInvoiceTotal: import("@prisma/client/runtime/library").Decimal | null;
+            matchStatus: import(".prisma/client").$Enums.MatchStatus;
+            mismatchAmount: import("@prisma/client/runtime/library").Decimal;
+            matchCheckedBy: bigint | null;
+            matchCheckedAt: Date | null;
+        }[];
+        supplier: {
+            email: string | null;
+            phone: string | null;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            supplierId: bigint;
+            supplierCode: string;
+            supplierName: string;
+            contactName: string | null;
+            address: string | null;
+            createdBy: bigint | null;
+            updatedBy: bigint | null;
+            deactivatedAt: Date | null;
+            deactivatedBy: bigint | null;
+        };
+        lines: ({
+            item: {
+                isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                unitId: number | null;
+                categoryId: number | null;
+                itemId: bigint;
+                itemCode: string;
+                itemName: string;
+                itemType: import(".prisma/client").$Enums.ItemType;
+            };
+        } & {
+            itemId: bigint;
+            unitPrice: import("@prisma/client/runtime/library").Decimal;
+            purchaseId: bigint;
+            qty: import("@prisma/client/runtime/library").Decimal;
+            overrideReason: string | null;
+            priceSource: string;
+            lineTotal: import("@prisma/client/runtime/library").Decimal;
+            overriddenBy: bigint | null;
+            purchaseLineId: bigint;
+        })[];
+    } & {
+        createdAt: Date;
+        updatedAt: Date;
+        supplierId: bigint;
+        createdBy: bigint | null;
+        updatedBy: bigint | null;
+        notes: string | null;
+        total: import("@prisma/client/runtime/library").Decimal;
+        purchaseId: bigint;
+        subtotal: import("@prisma/client/runtime/library").Decimal;
+        discount: import("@prisma/client/runtime/library").Decimal;
+        tax: import("@prisma/client/runtime/library").Decimal;
+        status: import(".prisma/client").$Enums.DocStatus;
+        purchaseNo: string;
+        purchaseDate: Date;
+        confirmedAt: Date | null;
+        confirmedBy: bigint | null;
+        receivedAt: Date | null;
+        receivedBy: bigint | null;
+        cancelledAt: Date | null;
+        cancelledBy: bigint | null;
+        cancelReason: string | null;
+    }>;
+    update(id: string, dto: UpdatePurchaseOrderDto, req: any): Promise<{
+        supplier: {
+            email: string | null;
+            phone: string | null;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            supplierId: bigint;
+            supplierCode: string;
+            supplierName: string;
+            contactName: string | null;
+            address: string | null;
+            createdBy: bigint | null;
+            updatedBy: bigint | null;
+            deactivatedAt: Date | null;
+            deactivatedBy: bigint | null;
+        };
+        lines: ({
+            item: {
+                isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                unitId: number | null;
+                categoryId: number | null;
+                itemId: bigint;
+                itemCode: string;
+                itemName: string;
+                itemType: import(".prisma/client").$Enums.ItemType;
+            };
+        } & {
+            itemId: bigint;
+            unitPrice: import("@prisma/client/runtime/library").Decimal;
+            purchaseId: bigint;
+            qty: import("@prisma/client/runtime/library").Decimal;
+            overrideReason: string | null;
+            priceSource: string;
+            lineTotal: import("@prisma/client/runtime/library").Decimal;
+            overriddenBy: bigint | null;
+            purchaseLineId: bigint;
+        })[];
+    } & {
+        createdAt: Date;
+        updatedAt: Date;
+        supplierId: bigint;
+        createdBy: bigint | null;
+        updatedBy: bigint | null;
+        notes: string | null;
+        total: import("@prisma/client/runtime/library").Decimal;
+        purchaseId: bigint;
+        subtotal: import("@prisma/client/runtime/library").Decimal;
+        discount: import("@prisma/client/runtime/library").Decimal;
+        tax: import("@prisma/client/runtime/library").Decimal;
+        status: import(".prisma/client").$Enums.DocStatus;
+        purchaseNo: string;
+        purchaseDate: Date;
+        confirmedAt: Date | null;
+        confirmedBy: bigint | null;
+        receivedAt: Date | null;
+        receivedBy: bigint | null;
+        cancelledAt: Date | null;
+        cancelledBy: bigint | null;
+        cancelReason: string | null;
+    }>;
+    confirm(id: string, req: any): Promise<{
+        supplier: {
+            email: string | null;
+            phone: string | null;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            supplierId: bigint;
+            supplierCode: string;
+            supplierName: string;
+            contactName: string | null;
+            address: string | null;
+            createdBy: bigint | null;
+            updatedBy: bigint | null;
+            deactivatedAt: Date | null;
+            deactivatedBy: bigint | null;
+        };
+        lines: ({
+            item: {
+                isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                unitId: number | null;
+                categoryId: number | null;
+                itemId: bigint;
+                itemCode: string;
+                itemName: string;
+                itemType: import(".prisma/client").$Enums.ItemType;
+            };
+        } & {
+            itemId: bigint;
+            unitPrice: import("@prisma/client/runtime/library").Decimal;
+            purchaseId: bigint;
+            qty: import("@prisma/client/runtime/library").Decimal;
+            overrideReason: string | null;
+            priceSource: string;
+            lineTotal: import("@prisma/client/runtime/library").Decimal;
+            overriddenBy: bigint | null;
+            purchaseLineId: bigint;
+        })[];
+    } & {
+        createdAt: Date;
+        updatedAt: Date;
+        supplierId: bigint;
+        createdBy: bigint | null;
+        updatedBy: bigint | null;
+        notes: string | null;
+        total: import("@prisma/client/runtime/library").Decimal;
+        purchaseId: bigint;
+        subtotal: import("@prisma/client/runtime/library").Decimal;
+        discount: import("@prisma/client/runtime/library").Decimal;
+        tax: import("@prisma/client/runtime/library").Decimal;
+        status: import(".prisma/client").$Enums.DocStatus;
+        purchaseNo: string;
+        purchaseDate: Date;
+        confirmedAt: Date | null;
+        confirmedBy: bigint | null;
+        receivedAt: Date | null;
+        receivedBy: bigint | null;
+        cancelledAt: Date | null;
+        cancelledBy: bigint | null;
+        cancelReason: string | null;
+    }>;
+    receive(id: string, req: any): Promise<{
+        purchaseOrder: {
+            supplier: {
+                email: string | null;
+                phone: string | null;
+                isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                supplierId: bigint;
+                supplierCode: string;
+                supplierName: string;
+                contactName: string | null;
+                address: string | null;
+                createdBy: bigint | null;
+                updatedBy: bigint | null;
+                deactivatedAt: Date | null;
+                deactivatedBy: bigint | null;
+            };
+            lines: ({
+                item: {
+                    isActive: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    unitId: number | null;
+                    categoryId: number | null;
+                    itemId: bigint;
+                    itemCode: string;
+                    itemName: string;
+                    itemType: import(".prisma/client").$Enums.ItemType;
+                };
+            } & {
+                itemId: bigint;
+                unitPrice: import("@prisma/client/runtime/library").Decimal;
+                purchaseId: bigint;
+                qty: import("@prisma/client/runtime/library").Decimal;
+                overrideReason: string | null;
+                priceSource: string;
+                lineTotal: import("@prisma/client/runtime/library").Decimal;
+                overriddenBy: bigint | null;
+                purchaseLineId: bigint;
+            })[];
+        } & {
+            createdAt: Date;
+            updatedAt: Date;
+            supplierId: bigint;
+            createdBy: bigint | null;
+            updatedBy: bigint | null;
+            notes: string | null;
+            total: import("@prisma/client/runtime/library").Decimal;
+            purchaseId: bigint;
+            subtotal: import("@prisma/client/runtime/library").Decimal;
+            discount: import("@prisma/client/runtime/library").Decimal;
+            tax: import("@prisma/client/runtime/library").Decimal;
+            status: import(".prisma/client").$Enums.DocStatus;
+            purchaseNo: string;
+            purchaseDate: Date;
+            confirmedAt: Date | null;
+            confirmedBy: bigint | null;
+            receivedAt: Date | null;
+            receivedBy: bigint | null;
+            cancelledAt: Date | null;
+            cancelledBy: bigint | null;
+            cancelReason: string | null;
+        };
+        invoice: {
+            createdAt: Date;
+            supplierId: bigint | null;
+            createdBy: bigint | null;
+            total: import("@prisma/client/runtime/library").Decimal;
+            invoiceId: bigint;
+            invoiceNo: string;
+            invoiceType: import(".prisma/client").$Enums.InvoiceType;
+            invoiceDate: Date;
+            dueDate: Date | null;
+            customerId: bigint | null;
+            salesOrderId: bigint | null;
+            purchaseId: bigint | null;
+            subtotal: import("@prisma/client/runtime/library").Decimal;
+            discount: import("@prisma/client/runtime/library").Decimal;
+            tax: import("@prisma/client/runtime/library").Decimal;
+            status: import(".prisma/client").$Enums.DocStatus;
+            printTemplate: string;
+            vendorInvoiceNo: string | null;
+            vendorInvoiceDate: Date | null;
+            vendorInvoiceTotal: import("@prisma/client/runtime/library").Decimal | null;
+            matchStatus: import(".prisma/client").$Enums.MatchStatus;
+            mismatchAmount: import("@prisma/client/runtime/library").Decimal;
+            matchCheckedBy: bigint | null;
+            matchCheckedAt: Date | null;
+        };
+        stockMovements: {
+            createdAt: Date;
+            createdBy: bigint | null;
+            itemId: bigint;
+            notes: string | null;
+            purchaseId: bigint | null;
+            stockMovementId: bigint;
+            movementDate: Date;
+            movementType: import(".prisma/client").$Enums.MovementType;
+            qtyIn: import("@prisma/client/runtime/library").Decimal;
+            qtyOut: import("@prisma/client/runtime/library").Decimal;
+            unitCost: import("@prisma/client/runtime/library").Decimal;
+            refTable: string | null;
+            refId: bigint | null;
+        }[];
+    }>;
+    cancel(id: string, dto: CancelPurchaseOrderDto, req: any): Promise<{
+        supplier: {
+            email: string | null;
+            phone: string | null;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            supplierId: bigint;
+            supplierCode: string;
+            supplierName: string;
+            contactName: string | null;
+            address: string | null;
+            createdBy: bigint | null;
+            updatedBy: bigint | null;
+            deactivatedAt: Date | null;
+            deactivatedBy: bigint | null;
+        };
+        lines: ({
+            item: {
+                isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                unitId: number | null;
+                categoryId: number | null;
+                itemId: bigint;
+                itemCode: string;
+                itemName: string;
+                itemType: import(".prisma/client").$Enums.ItemType;
+            };
+        } & {
+            itemId: bigint;
+            unitPrice: import("@prisma/client/runtime/library").Decimal;
+            purchaseId: bigint;
+            qty: import("@prisma/client/runtime/library").Decimal;
+            overrideReason: string | null;
+            priceSource: string;
+            lineTotal: import("@prisma/client/runtime/library").Decimal;
+            overriddenBy: bigint | null;
+            purchaseLineId: bigint;
+        })[];
+    } & {
+        createdAt: Date;
+        updatedAt: Date;
+        supplierId: bigint;
+        createdBy: bigint | null;
+        updatedBy: bigint | null;
+        notes: string | null;
+        total: import("@prisma/client/runtime/library").Decimal;
+        purchaseId: bigint;
+        subtotal: import("@prisma/client/runtime/library").Decimal;
+        discount: import("@prisma/client/runtime/library").Decimal;
+        tax: import("@prisma/client/runtime/library").Decimal;
+        status: import(".prisma/client").$Enums.DocStatus;
+        purchaseNo: string;
+        purchaseDate: Date;
+        confirmedAt: Date | null;
+        confirmedBy: bigint | null;
+        receivedAt: Date | null;
+        receivedBy: bigint | null;
+        cancelledAt: Date | null;
+        cancelledBy: bigint | null;
+        cancelReason: string | null;
+    }>;
+    getSupplierActivePrice(supplierId: string, itemId: string, asOfDate?: string): Promise<{
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        supplierId: bigint;
+        createdBy: bigint | null;
+        updatedBy: bigint | null;
+        itemId: bigint;
+        supplierItemPriceId: bigint;
+        unitPrice: import("@prisma/client/runtime/library").Decimal;
+        effectiveFrom: Date;
+        endDate: Date | null;
+    }>;
+}
+export declare class PurchaseInvoicesController {
+    private readonly purchasingService;
+    private readonly pdfService;
+    constructor(purchasingService: PurchasingService, pdfService: PdfService);
+    findAll(search?: string, matchStatus?: MatchStatus, status?: DocStatus, from?: string, to?: string, page?: string, limit?: string): Promise<{
+        data: ({
+            payments: {
+                createdAt: Date;
+                notes: string | null;
+                amount: import("@prisma/client/runtime/library").Decimal;
+                method: import(".prisma/client").$Enums.PayMethod;
+                invoiceId: bigint;
+                receivedBy: bigint | null;
+                paymentDate: Date;
+                referenceNo: string | null;
+                paymentId: bigint;
+                paymentNo: string;
+            }[];
+            supplier: {
+                email: string | null;
+                phone: string | null;
+                isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                supplierId: bigint;
+                supplierCode: string;
+                supplierName: string;
+                contactName: string | null;
+                address: string | null;
+                createdBy: bigint | null;
+                updatedBy: bigint | null;
+                deactivatedAt: Date | null;
+                deactivatedBy: bigint | null;
+            } | null;
+            purchaseOrder: {
+                createdAt: Date;
+                updatedAt: Date;
+                supplierId: bigint;
+                createdBy: bigint | null;
+                updatedBy: bigint | null;
+                notes: string | null;
+                total: import("@prisma/client/runtime/library").Decimal;
+                purchaseId: bigint;
+                subtotal: import("@prisma/client/runtime/library").Decimal;
+                discount: import("@prisma/client/runtime/library").Decimal;
+                tax: import("@prisma/client/runtime/library").Decimal;
+                status: import(".prisma/client").$Enums.DocStatus;
+                purchaseNo: string;
+                purchaseDate: Date;
+                confirmedAt: Date | null;
+                confirmedBy: bigint | null;
+                receivedAt: Date | null;
+                receivedBy: bigint | null;
+                cancelledAt: Date | null;
+                cancelledBy: bigint | null;
+                cancelReason: string | null;
+            } | null;
+            lines: ({
+                item: {
+                    isActive: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    unitId: number | null;
+                    categoryId: number | null;
+                    itemId: bigint;
+                    itemCode: string;
+                    itemName: string;
+                    itemType: import(".prisma/client").$Enums.ItemType;
+                } | null;
+            } & {
+                description: string | null;
+                itemId: bigint | null;
+                unitPrice: import("@prisma/client/runtime/library").Decimal;
+                invoiceId: bigint;
+                qty: import("@prisma/client/runtime/library").Decimal;
+                lineTotal: import("@prisma/client/runtime/library").Decimal;
+                invoiceLineId: bigint;
+            })[];
+        } & {
+            createdAt: Date;
+            supplierId: bigint | null;
+            createdBy: bigint | null;
+            total: import("@prisma/client/runtime/library").Decimal;
+            invoiceId: bigint;
+            invoiceNo: string;
+            invoiceType: import(".prisma/client").$Enums.InvoiceType;
+            invoiceDate: Date;
+            dueDate: Date | null;
+            customerId: bigint | null;
+            salesOrderId: bigint | null;
+            purchaseId: bigint | null;
+            subtotal: import("@prisma/client/runtime/library").Decimal;
+            discount: import("@prisma/client/runtime/library").Decimal;
+            tax: import("@prisma/client/runtime/library").Decimal;
+            status: import(".prisma/client").$Enums.DocStatus;
+            printTemplate: string;
+            vendorInvoiceNo: string | null;
+            vendorInvoiceDate: Date | null;
+            vendorInvoiceTotal: import("@prisma/client/runtime/library").Decimal | null;
+            matchStatus: import(".prisma/client").$Enums.MatchStatus;
+            mismatchAmount: import("@prisma/client/runtime/library").Decimal;
+            matchCheckedBy: bigint | null;
+            matchCheckedAt: Date | null;
+        })[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    }>;
+    findOne(id: string): Promise<{
+        payments: {
+            createdAt: Date;
+            notes: string | null;
+            amount: import("@prisma/client/runtime/library").Decimal;
+            method: import(".prisma/client").$Enums.PayMethod;
+            invoiceId: bigint;
+            receivedBy: bigint | null;
+            paymentDate: Date;
+            referenceNo: string | null;
+            paymentId: bigint;
+            paymentNo: string;
+        }[];
+        supplier: {
+            email: string | null;
+            phone: string | null;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            supplierId: bigint;
+            supplierCode: string;
+            supplierName: string;
+            contactName: string | null;
+            address: string | null;
+            createdBy: bigint | null;
+            updatedBy: bigint | null;
+            deactivatedAt: Date | null;
+            deactivatedBy: bigint | null;
+        } | null;
+        purchaseOrder: ({
+            lines: ({
+                item: {
+                    isActive: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    unitId: number | null;
+                    categoryId: number | null;
+                    itemId: bigint;
+                    itemCode: string;
+                    itemName: string;
+                    itemType: import(".prisma/client").$Enums.ItemType;
+                };
+            } & {
+                itemId: bigint;
+                unitPrice: import("@prisma/client/runtime/library").Decimal;
+                purchaseId: bigint;
+                qty: import("@prisma/client/runtime/library").Decimal;
+                overrideReason: string | null;
+                priceSource: string;
+                lineTotal: import("@prisma/client/runtime/library").Decimal;
+                overriddenBy: bigint | null;
+                purchaseLineId: bigint;
+            })[];
+        } & {
+            createdAt: Date;
+            updatedAt: Date;
+            supplierId: bigint;
+            createdBy: bigint | null;
+            updatedBy: bigint | null;
+            notes: string | null;
+            total: import("@prisma/client/runtime/library").Decimal;
+            purchaseId: bigint;
+            subtotal: import("@prisma/client/runtime/library").Decimal;
+            discount: import("@prisma/client/runtime/library").Decimal;
+            tax: import("@prisma/client/runtime/library").Decimal;
+            status: import(".prisma/client").$Enums.DocStatus;
+            purchaseNo: string;
+            purchaseDate: Date;
+            confirmedAt: Date | null;
+            confirmedBy: bigint | null;
+            receivedAt: Date | null;
+            receivedBy: bigint | null;
+            cancelledAt: Date | null;
+            cancelledBy: bigint | null;
+            cancelReason: string | null;
+        }) | null;
+        lines: ({
+            item: {
+                isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                unitId: number | null;
+                categoryId: number | null;
+                itemId: bigint;
+                itemCode: string;
+                itemName: string;
+                itemType: import(".prisma/client").$Enums.ItemType;
+            } | null;
+        } & {
+            description: string | null;
+            itemId: bigint | null;
+            unitPrice: import("@prisma/client/runtime/library").Decimal;
+            invoiceId: bigint;
+            qty: import("@prisma/client/runtime/library").Decimal;
+            lineTotal: import("@prisma/client/runtime/library").Decimal;
+            invoiceLineId: bigint;
+        })[];
+    } & {
+        createdAt: Date;
+        supplierId: bigint | null;
+        createdBy: bigint | null;
+        total: import("@prisma/client/runtime/library").Decimal;
+        invoiceId: bigint;
+        invoiceNo: string;
+        invoiceType: import(".prisma/client").$Enums.InvoiceType;
+        invoiceDate: Date;
+        dueDate: Date | null;
+        customerId: bigint | null;
+        salesOrderId: bigint | null;
+        purchaseId: bigint | null;
+        subtotal: import("@prisma/client/runtime/library").Decimal;
+        discount: import("@prisma/client/runtime/library").Decimal;
+        tax: import("@prisma/client/runtime/library").Decimal;
+        status: import(".prisma/client").$Enums.DocStatus;
+        printTemplate: string;
+        vendorInvoiceNo: string | null;
+        vendorInvoiceDate: Date | null;
+        vendorInvoiceTotal: import("@prisma/client/runtime/library").Decimal | null;
+        matchStatus: import(".prisma/client").$Enums.MatchStatus;
+        mismatchAmount: import("@prisma/client/runtime/library").Decimal;
+        matchCheckedBy: bigint | null;
+        matchCheckedAt: Date | null;
+    }>;
+    downloadPdf(id: string, template: string | undefined, res: Response): Promise<void>;
+    match(id: string, dto: MatchInvoiceDto, req: any): Promise<{
+        payments: {
+            createdAt: Date;
+            notes: string | null;
+            amount: import("@prisma/client/runtime/library").Decimal;
+            method: import(".prisma/client").$Enums.PayMethod;
+            invoiceId: bigint;
+            receivedBy: bigint | null;
+            paymentDate: Date;
+            referenceNo: string | null;
+            paymentId: bigint;
+            paymentNo: string;
+        }[];
+        supplier: {
+            email: string | null;
+            phone: string | null;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+            supplierId: bigint;
+            supplierCode: string;
+            supplierName: string;
+            contactName: string | null;
+            address: string | null;
+            createdBy: bigint | null;
+            updatedBy: bigint | null;
+            deactivatedAt: Date | null;
+            deactivatedBy: bigint | null;
+        } | null;
+        lines: ({
+            item: {
+                isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                unitId: number | null;
+                categoryId: number | null;
+                itemId: bigint;
+                itemCode: string;
+                itemName: string;
+                itemType: import(".prisma/client").$Enums.ItemType;
+            } | null;
+        } & {
+            description: string | null;
+            itemId: bigint | null;
+            unitPrice: import("@prisma/client/runtime/library").Decimal;
+            invoiceId: bigint;
+            qty: import("@prisma/client/runtime/library").Decimal;
+            lineTotal: import("@prisma/client/runtime/library").Decimal;
+            invoiceLineId: bigint;
+        })[];
+    } & {
+        createdAt: Date;
+        supplierId: bigint | null;
+        createdBy: bigint | null;
+        total: import("@prisma/client/runtime/library").Decimal;
+        invoiceId: bigint;
+        invoiceNo: string;
+        invoiceType: import(".prisma/client").$Enums.InvoiceType;
+        invoiceDate: Date;
+        dueDate: Date | null;
+        customerId: bigint | null;
+        salesOrderId: bigint | null;
+        purchaseId: bigint | null;
+        subtotal: import("@prisma/client/runtime/library").Decimal;
+        discount: import("@prisma/client/runtime/library").Decimal;
+        tax: import("@prisma/client/runtime/library").Decimal;
+        status: import(".prisma/client").$Enums.DocStatus;
+        printTemplate: string;
+        vendorInvoiceNo: string | null;
+        vendorInvoiceDate: Date | null;
+        vendorInvoiceTotal: import("@prisma/client/runtime/library").Decimal | null;
+        matchStatus: import(".prisma/client").$Enums.MatchStatus;
+        mismatchAmount: import("@prisma/client/runtime/library").Decimal;
+        matchCheckedBy: bigint | null;
+        matchCheckedAt: Date | null;
+    }>;
+    createPayment(id: string, dto: CreatePaymentDto, req: any): Promise<{
+        createdAt: Date;
+        notes: string | null;
+        amount: import("@prisma/client/runtime/library").Decimal;
+        method: import(".prisma/client").$Enums.PayMethod;
+        invoiceId: bigint;
+        receivedBy: bigint | null;
+        paymentDate: Date;
+        referenceNo: string | null;
+        paymentId: bigint;
+        paymentNo: string;
+    }>;
+    getPayments(id: string): Promise<{
+        invoice: {
+            payments: {
+                createdAt: Date;
+                notes: string | null;
+                amount: import("@prisma/client/runtime/library").Decimal;
+                method: import(".prisma/client").$Enums.PayMethod;
+                invoiceId: bigint;
+                receivedBy: bigint | null;
+                paymentDate: Date;
+                referenceNo: string | null;
+                paymentId: bigint;
+                paymentNo: string;
+            }[];
+            supplier: {
+                email: string | null;
+                phone: string | null;
+                isActive: boolean;
+                createdAt: Date;
+                updatedAt: Date;
+                supplierId: bigint;
+                supplierCode: string;
+                supplierName: string;
+                contactName: string | null;
+                address: string | null;
+                createdBy: bigint | null;
+                updatedBy: bigint | null;
+                deactivatedAt: Date | null;
+                deactivatedBy: bigint | null;
+            } | null;
+            purchaseOrder: ({
+                lines: ({
+                    item: {
+                        isActive: boolean;
+                        createdAt: Date;
+                        updatedAt: Date;
+                        unitId: number | null;
+                        categoryId: number | null;
+                        itemId: bigint;
+                        itemCode: string;
+                        itemName: string;
+                        itemType: import(".prisma/client").$Enums.ItemType;
+                    };
+                } & {
+                    itemId: bigint;
+                    unitPrice: import("@prisma/client/runtime/library").Decimal;
+                    purchaseId: bigint;
+                    qty: import("@prisma/client/runtime/library").Decimal;
+                    overrideReason: string | null;
+                    priceSource: string;
+                    lineTotal: import("@prisma/client/runtime/library").Decimal;
+                    overriddenBy: bigint | null;
+                    purchaseLineId: bigint;
+                })[];
+            } & {
+                createdAt: Date;
+                updatedAt: Date;
+                supplierId: bigint;
+                createdBy: bigint | null;
+                updatedBy: bigint | null;
+                notes: string | null;
+                total: import("@prisma/client/runtime/library").Decimal;
+                purchaseId: bigint;
+                subtotal: import("@prisma/client/runtime/library").Decimal;
+                discount: import("@prisma/client/runtime/library").Decimal;
+                tax: import("@prisma/client/runtime/library").Decimal;
+                status: import(".prisma/client").$Enums.DocStatus;
+                purchaseNo: string;
+                purchaseDate: Date;
+                confirmedAt: Date | null;
+                confirmedBy: bigint | null;
+                receivedAt: Date | null;
+                receivedBy: bigint | null;
+                cancelledAt: Date | null;
+                cancelledBy: bigint | null;
+                cancelReason: string | null;
+            }) | null;
+            lines: ({
+                item: {
+                    isActive: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    unitId: number | null;
+                    categoryId: number | null;
+                    itemId: bigint;
+                    itemCode: string;
+                    itemName: string;
+                    itemType: import(".prisma/client").$Enums.ItemType;
+                } | null;
+            } & {
+                description: string | null;
+                itemId: bigint | null;
+                unitPrice: import("@prisma/client/runtime/library").Decimal;
+                invoiceId: bigint;
+                qty: import("@prisma/client/runtime/library").Decimal;
+                lineTotal: import("@prisma/client/runtime/library").Decimal;
+                invoiceLineId: bigint;
+            })[];
+        } & {
+            createdAt: Date;
+            supplierId: bigint | null;
+            createdBy: bigint | null;
+            total: import("@prisma/client/runtime/library").Decimal;
+            invoiceId: bigint;
+            invoiceNo: string;
+            invoiceType: import(".prisma/client").$Enums.InvoiceType;
+            invoiceDate: Date;
+            dueDate: Date | null;
+            customerId: bigint | null;
+            salesOrderId: bigint | null;
+            purchaseId: bigint | null;
+            subtotal: import("@prisma/client/runtime/library").Decimal;
+            discount: import("@prisma/client/runtime/library").Decimal;
+            tax: import("@prisma/client/runtime/library").Decimal;
+            status: import(".prisma/client").$Enums.DocStatus;
+            printTemplate: string;
+            vendorInvoiceNo: string | null;
+            vendorInvoiceDate: Date | null;
+            vendorInvoiceTotal: import("@prisma/client/runtime/library").Decimal | null;
+            matchStatus: import(".prisma/client").$Enums.MatchStatus;
+            mismatchAmount: import("@prisma/client/runtime/library").Decimal;
+            matchCheckedBy: bigint | null;
+            matchCheckedAt: Date | null;
+        };
+        payments: ({
+            receiver: {
+                userId: bigint;
+                fullName: string;
+            } | null;
+        } & {
+            createdAt: Date;
+            notes: string | null;
+            amount: import("@prisma/client/runtime/library").Decimal;
+            method: import(".prisma/client").$Enums.PayMethod;
+            invoiceId: bigint;
+            receivedBy: bigint | null;
+            paymentDate: Date;
+            referenceNo: string | null;
+            paymentId: bigint;
+            paymentNo: string;
+        })[];
+        totalPaid: number;
+        balance: number;
+    }>;
+}
+export declare class PaymentsController {
+    private readonly purchasingService;
+    constructor(purchasingService: PurchasingService);
+    findAll(from?: string, to?: string, page?: string, limit?: string): Promise<{
+        data: ({
+            invoice: {
+                supplier: {
+                    email: string | null;
+                    phone: string | null;
+                    isActive: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    supplierId: bigint;
+                    supplierCode: string;
+                    supplierName: string;
+                    contactName: string | null;
+                    address: string | null;
+                    createdBy: bigint | null;
+                    updatedBy: bigint | null;
+                    deactivatedAt: Date | null;
+                    deactivatedBy: bigint | null;
+                } | null;
+            } & {
+                createdAt: Date;
+                supplierId: bigint | null;
+                createdBy: bigint | null;
+                total: import("@prisma/client/runtime/library").Decimal;
+                invoiceId: bigint;
+                invoiceNo: string;
+                invoiceType: import(".prisma/client").$Enums.InvoiceType;
+                invoiceDate: Date;
+                dueDate: Date | null;
+                customerId: bigint | null;
+                salesOrderId: bigint | null;
+                purchaseId: bigint | null;
+                subtotal: import("@prisma/client/runtime/library").Decimal;
+                discount: import("@prisma/client/runtime/library").Decimal;
+                tax: import("@prisma/client/runtime/library").Decimal;
+                status: import(".prisma/client").$Enums.DocStatus;
+                printTemplate: string;
+                vendorInvoiceNo: string | null;
+                vendorInvoiceDate: Date | null;
+                vendorInvoiceTotal: import("@prisma/client/runtime/library").Decimal | null;
+                matchStatus: import(".prisma/client").$Enums.MatchStatus;
+                mismatchAmount: import("@prisma/client/runtime/library").Decimal;
+                matchCheckedBy: bigint | null;
+                matchCheckedAt: Date | null;
+            };
+            receiver: {
+                userId: bigint;
+                fullName: string;
+            } | null;
+        } & {
+            createdAt: Date;
+            notes: string | null;
+            amount: import("@prisma/client/runtime/library").Decimal;
+            method: import(".prisma/client").$Enums.PayMethod;
+            invoiceId: bigint;
+            receivedBy: bigint | null;
+            paymentDate: Date;
+            referenceNo: string | null;
+            paymentId: bigint;
+            paymentNo: string;
+        })[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
     }>;
 }

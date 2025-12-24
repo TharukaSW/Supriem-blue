@@ -20,6 +20,7 @@ const dto_1 = require("./dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../auth/guards/roles.guard");
 const roles_decorator_1 = require("../auth/decorators/roles.decorator");
+const current_user_decorator_1 = require("../auth/decorators/current-user.decorator");
 const client_1 = require("@prisma/client");
 let MastersController = class MastersController {
     mastersService;
@@ -71,53 +72,73 @@ let MastersController = class MastersController {
     deleteItem(id) {
         return this.mastersService.deleteItem(BigInt(id));
     }
-    createSupplier(dto) {
-        return this.mastersService.createSupplier(dto);
+    createSupplier(dto, user) {
+        return this.mastersService.createSupplier(dto, user.userId);
     }
     findAllSuppliers(query) {
         return this.mastersService.findAllSuppliers(query);
     }
-    findOneSupplier(id) {
-        return this.mastersService.findOneSupplier(BigInt(id));
+    findOneSupplier(id, includePrices) {
+        return this.mastersService.findOneSupplier(BigInt(id), includePrices === 'true');
     }
-    updateSupplier(id, dto) {
-        return this.mastersService.updateSupplier(BigInt(id), dto);
+    updateSupplier(id, dto, user) {
+        return this.mastersService.updateSupplier(BigInt(id), dto, user.userId);
+    }
+    deactivateSupplier(id, dto, user) {
+        return this.mastersService.deactivateSupplier(BigInt(id), dto, user.userId);
     }
     deleteSupplier(id) {
         return this.mastersService.deleteSupplier(BigInt(id));
     }
-    createCustomer(dto) {
-        return this.mastersService.createCustomer(dto);
+    createCustomer(dto, user) {
+        return this.mastersService.createCustomer(dto, user.userId);
     }
     findAllCustomers(query) {
         return this.mastersService.findAllCustomers(query);
     }
-    findOneCustomer(id) {
-        return this.mastersService.findOneCustomer(BigInt(id));
+    findOneCustomer(id, includePrices) {
+        return this.mastersService.findOneCustomer(BigInt(id), includePrices === 'true');
     }
-    updateCustomer(id, dto) {
-        return this.mastersService.updateCustomer(BigInt(id), dto);
+    updateCustomer(id, dto, user) {
+        return this.mastersService.updateCustomer(BigInt(id), dto, user.userId);
+    }
+    deactivateCustomer(id, dto, user) {
+        return this.mastersService.deactivateCustomer(BigInt(id), dto, user.userId);
     }
     deleteCustomer(id) {
         return this.mastersService.deleteCustomer(BigInt(id));
     }
-    createSupplierItemPrice(dto) {
-        return this.mastersService.createSupplierItemPrice(dto);
+    createSupplierItemPrice(supplierId, dto, user) {
+        return this.mastersService.createSupplierItemPrice(BigInt(supplierId), dto, user.userId);
     }
-    findSupplierItemPrices(supplierId, itemId) {
-        return this.mastersService.findSupplierItemPrices(supplierId, itemId);
+    findSupplierItemPrices(supplierId, query) {
+        return this.mastersService.findSupplierItemPrices(BigInt(supplierId), query);
     }
-    updateSupplierItemPrice(id, dto) {
-        return this.mastersService.updateSupplierItemPrice(BigInt(id), dto);
+    getSupplierActivePrice(supplierId, itemId, asOfDate) {
+        const date = asOfDate ? new Date(asOfDate) : undefined;
+        return this.mastersService.getSupplierActivePrice(BigInt(supplierId), BigInt(itemId), date);
     }
-    createCustomerItemPrice(dto) {
-        return this.mastersService.createCustomerItemPrice(dto);
+    updateSupplierItemPrice(supplierId, priceId, dto, user) {
+        return this.mastersService.updateSupplierItemPrice(BigInt(supplierId), BigInt(priceId), dto, user.userId);
     }
-    findCustomerItemPrices(customerId, itemId) {
-        return this.mastersService.findCustomerItemPrices(customerId, itemId);
+    deactivateSupplierItemPrice(supplierId, priceId, dto, user) {
+        return this.mastersService.deactivateSupplierItemPrice(BigInt(supplierId), BigInt(priceId), dto, user.userId);
     }
-    updateCustomerItemPrice(id, dto) {
-        return this.mastersService.updateCustomerItemPrice(BigInt(id), dto);
+    createCustomerItemPrice(customerId, dto, user) {
+        return this.mastersService.createCustomerItemPrice(BigInt(customerId), dto, user.userId);
+    }
+    findCustomerItemPrices(customerId, query) {
+        return this.mastersService.findCustomerItemPrices(BigInt(customerId), query);
+    }
+    getCustomerActivePrice(customerId, itemId, asOfDate) {
+        const date = asOfDate ? new Date(asOfDate) : undefined;
+        return this.mastersService.getCustomerActivePrice(BigInt(customerId), BigInt(itemId), date);
+    }
+    updateCustomerItemPrice(customerId, priceId, dto, user) {
+        return this.mastersService.updateCustomerItemPrice(BigInt(customerId), BigInt(priceId), dto, user.userId);
+    }
+    deactivateCustomerItemPrice(customerId, priceId, dto, user) {
+        return this.mastersService.deactivateCustomerItemPrice(BigInt(customerId), BigInt(priceId), dto, user.userId);
     }
 };
 exports.MastersController = MastersController;
@@ -265,14 +286,15 @@ __decorate([
     (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER),
     (0, swagger_1.ApiOperation)({ summary: 'Create a supplier' }),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [dto_1.CreateSupplierDto]),
+    __metadata("design:paramtypes", [dto_1.CreateSupplierDto, Object]),
     __metadata("design:returntype", void 0)
 ], MastersController.prototype, "createSupplier", null);
 __decorate([
     (0, common_1.Get)('suppliers'),
     (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER, client_1.RoleName.USER),
-    (0, swagger_1.ApiOperation)({ summary: 'Get all suppliers with pagination' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all suppliers with pagination and optional price lists' }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dto_1.SupplierQueryDto]),
@@ -281,28 +303,43 @@ __decorate([
 __decorate([
     (0, common_1.Get)('suppliers/:id'),
     (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER, client_1.RoleName.USER),
-    (0, swagger_1.ApiOperation)({ summary: 'Get supplier by ID' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Get supplier by ID with optional price lists' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: 'string' }),
+    (0, swagger_1.ApiQuery)({ name: 'includePrices', required: false, type: 'boolean' }),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Query)('includePrices')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], MastersController.prototype, "findOneSupplier", null);
 __decorate([
-    (0, common_1.Put)('suppliers/:id'),
+    (0, common_1.Patch)('suppliers/:id'),
     (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER),
     (0, swagger_1.ApiOperation)({ summary: 'Update supplier' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: 'string' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, dto_1.UpdateSupplierDto]),
+    __metadata("design:paramtypes", [String, dto_1.UpdateSupplierDto, Object]),
     __metadata("design:returntype", void 0)
 ], MastersController.prototype, "updateSupplier", null);
 __decorate([
+    (0, common_1.Patch)('suppliers/:id/deactivate'),
+    (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER),
+    (0, swagger_1.ApiOperation)({ summary: 'Deactivate supplier (soft delete)' }),
+    (0, swagger_1.ApiParam)({ name: 'id', type: 'string' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, dto_1.DeactivateSupplierDto, Object]),
+    __metadata("design:returntype", void 0)
+], MastersController.prototype, "deactivateSupplier", null);
+__decorate([
     (0, common_1.Delete)('suppliers/:id'),
     (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN),
-    (0, swagger_1.ApiOperation)({ summary: 'Deactivate supplier' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Deactivate supplier (deprecated - use PATCH /suppliers/:id/deactivate)' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: 'string' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -314,14 +351,15 @@ __decorate([
     (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER),
     (0, swagger_1.ApiOperation)({ summary: 'Create a customer' }),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [dto_1.CreateCustomerDto]),
+    __metadata("design:paramtypes", [dto_1.CreateCustomerDto, Object]),
     __metadata("design:returntype", void 0)
 ], MastersController.prototype, "createCustomer", null);
 __decorate([
     (0, common_1.Get)('customers'),
     (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER, client_1.RoleName.USER),
-    (0, swagger_1.ApiOperation)({ summary: 'Get all customers with pagination' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all customers with pagination and optional price lists' }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dto_1.CustomerQueryDto]),
@@ -330,28 +368,43 @@ __decorate([
 __decorate([
     (0, common_1.Get)('customers/:id'),
     (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER, client_1.RoleName.USER),
-    (0, swagger_1.ApiOperation)({ summary: 'Get customer by ID' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Get customer by ID with optional price lists' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: 'string' }),
+    (0, swagger_1.ApiQuery)({ name: 'includePrices', required: false, type: 'boolean' }),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Query)('includePrices')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], MastersController.prototype, "findOneCustomer", null);
 __decorate([
-    (0, common_1.Put)('customers/:id'),
+    (0, common_1.Patch)('customers/:id'),
     (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER),
     (0, swagger_1.ApiOperation)({ summary: 'Update customer' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: 'string' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, dto_1.UpdateCustomerDto]),
+    __metadata("design:paramtypes", [String, dto_1.UpdateCustomerDto, Object]),
     __metadata("design:returntype", void 0)
 ], MastersController.prototype, "updateCustomer", null);
 __decorate([
+    (0, common_1.Patch)('customers/:id/deactivate'),
+    (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER),
+    (0, swagger_1.ApiOperation)({ summary: 'Deactivate customer (soft delete)' }),
+    (0, swagger_1.ApiParam)({ name: 'id', type: 'string' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, dto_1.DeactivateCustomerDto, Object]),
+    __metadata("design:returntype", void 0)
+], MastersController.prototype, "deactivateCustomer", null);
+__decorate([
     (0, common_1.Delete)('customers/:id'),
     (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN),
-    (0, swagger_1.ApiOperation)({ summary: 'Deactivate customer' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Deactivate customer (deprecated - use PATCH /customers/:id/deactivate)' }),
     (0, swagger_1.ApiParam)({ name: 'id', type: 'string' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -359,69 +412,135 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], MastersController.prototype, "deleteCustomer", null);
 __decorate([
-    (0, common_1.Post)('supplier-prices'),
+    (0, common_1.Post)('suppliers/:supplierId/prices'),
     (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER),
-    (0, swagger_1.ApiOperation)({ summary: 'Create supplier item price' }),
-    __param(0, (0, common_1.Body)()),
+    (0, swagger_1.ApiOperation)({ summary: 'Add a new price for supplier item' }),
+    (0, swagger_1.ApiParam)({ name: 'supplierId', type: 'string' }),
+    __param(0, (0, common_1.Param)('supplierId')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [dto_1.CreateSupplierItemPriceDto]),
+    __metadata("design:paramtypes", [String, dto_1.CreateSupplierItemPriceDto, Object]),
     __metadata("design:returntype", void 0)
 ], MastersController.prototype, "createSupplierItemPrice", null);
 __decorate([
-    (0, common_1.Get)('supplier-prices'),
-    (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER),
-    (0, swagger_1.ApiOperation)({ summary: 'Get supplier item prices' }),
-    (0, swagger_1.ApiQuery)({ name: 'supplierId', required: false }),
-    (0, swagger_1.ApiQuery)({ name: 'itemId', required: false }),
-    __param(0, (0, common_1.Query)('supplierId')),
-    __param(1, (0, common_1.Query)('itemId')),
+    (0, common_1.Get)('suppliers/:supplierId/prices'),
+    (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER, client_1.RoleName.USER),
+    (0, swagger_1.ApiOperation)({ summary: 'Get supplier price list with filters' }),
+    (0, swagger_1.ApiParam)({ name: 'supplierId', type: 'string' }),
+    __param(0, (0, common_1.Param)('supplierId')),
+    __param(1, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, dto_1.SupplierPriceQueryDto]),
     __metadata("design:returntype", void 0)
 ], MastersController.prototype, "findSupplierItemPrices", null);
 __decorate([
-    (0, common_1.Put)('supplier-prices/:id'),
+    (0, common_1.Get)('suppliers/:supplierId/prices/active/:itemId'),
+    (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER, client_1.RoleName.USER),
+    (0, swagger_1.ApiOperation)({ summary: 'Get active price for supplier + item combination' }),
+    (0, swagger_1.ApiParam)({ name: 'supplierId', type: 'string' }),
+    (0, swagger_1.ApiParam)({ name: 'itemId', type: 'string' }),
+    (0, swagger_1.ApiQuery)({ name: 'asOfDate', required: false, description: 'Date for price lookup (YYYY-MM-DD)' }),
+    __param(0, (0, common_1.Param)('supplierId')),
+    __param(1, (0, common_1.Param)('itemId')),
+    __param(2, (0, common_1.Query)('asOfDate')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", void 0)
+], MastersController.prototype, "getSupplierActivePrice", null);
+__decorate([
+    (0, common_1.Patch)('suppliers/:supplierId/prices/:priceId'),
     (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER),
     (0, swagger_1.ApiOperation)({ summary: 'Update supplier item price' }),
-    (0, swagger_1.ApiParam)({ name: 'id', type: 'string' }),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
+    (0, swagger_1.ApiParam)({ name: 'supplierId', type: 'string' }),
+    (0, swagger_1.ApiParam)({ name: 'priceId', type: 'string' }),
+    __param(0, (0, common_1.Param)('supplierId')),
+    __param(1, (0, common_1.Param)('priceId')),
+    __param(2, (0, common_1.Body)()),
+    __param(3, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, dto_1.UpdateSupplierItemPriceDto]),
+    __metadata("design:paramtypes", [String, String, dto_1.UpdateSupplierItemPriceDto, Object]),
     __metadata("design:returntype", void 0)
 ], MastersController.prototype, "updateSupplierItemPrice", null);
 __decorate([
-    (0, common_1.Post)('customer-prices'),
+    (0, common_1.Patch)('suppliers/:supplierId/prices/:priceId/deactivate'),
     (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER),
-    (0, swagger_1.ApiOperation)({ summary: 'Create customer item price' }),
-    __param(0, (0, common_1.Body)()),
+    (0, swagger_1.ApiOperation)({ summary: 'Deactivate supplier item price' }),
+    (0, swagger_1.ApiParam)({ name: 'supplierId', type: 'string' }),
+    (0, swagger_1.ApiParam)({ name: 'priceId', type: 'string' }),
+    __param(0, (0, common_1.Param)('supplierId')),
+    __param(1, (0, common_1.Param)('priceId')),
+    __param(2, (0, common_1.Body)()),
+    __param(3, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [dto_1.CreateCustomerItemPriceDto]),
+    __metadata("design:paramtypes", [String, String, dto_1.DeactivateSupplierPriceDto, Object]),
+    __metadata("design:returntype", void 0)
+], MastersController.prototype, "deactivateSupplierItemPrice", null);
+__decorate([
+    (0, common_1.Post)('customers/:customerId/prices'),
+    (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER),
+    (0, swagger_1.ApiOperation)({ summary: 'Add a new price for customer item' }),
+    (0, swagger_1.ApiParam)({ name: 'customerId', type: 'string' }),
+    __param(0, (0, common_1.Param)('customerId')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, dto_1.CreateCustomerItemPriceDto, Object]),
     __metadata("design:returntype", void 0)
 ], MastersController.prototype, "createCustomerItemPrice", null);
 __decorate([
-    (0, common_1.Get)('customer-prices'),
-    (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER),
-    (0, swagger_1.ApiOperation)({ summary: 'Get customer item prices' }),
-    (0, swagger_1.ApiQuery)({ name: 'customerId', required: false }),
-    (0, swagger_1.ApiQuery)({ name: 'itemId', required: false }),
-    __param(0, (0, common_1.Query)('customerId')),
-    __param(1, (0, common_1.Query)('itemId')),
+    (0, common_1.Get)('customers/:customerId/prices'),
+    (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER, client_1.RoleName.USER),
+    (0, swagger_1.ApiOperation)({ summary: 'Get customer price list with filters' }),
+    (0, swagger_1.ApiParam)({ name: 'customerId', type: 'string' }),
+    __param(0, (0, common_1.Param)('customerId')),
+    __param(1, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, dto_1.CustomerPriceQueryDto]),
     __metadata("design:returntype", void 0)
 ], MastersController.prototype, "findCustomerItemPrices", null);
 __decorate([
-    (0, common_1.Put)('customer-prices/:id'),
+    (0, common_1.Get)('customers/:customerId/prices/active/:itemId'),
+    (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER, client_1.RoleName.USER),
+    (0, swagger_1.ApiOperation)({ summary: 'Get active price for customer + item combination' }),
+    (0, swagger_1.ApiParam)({ name: 'customerId', type: 'string' }),
+    (0, swagger_1.ApiParam)({ name: 'itemId', type: 'string' }),
+    (0, swagger_1.ApiQuery)({ name: 'asOfDate', required: false, description: 'Date for price lookup (YYYY-MM-DD)' }),
+    __param(0, (0, common_1.Param)('customerId')),
+    __param(1, (0, common_1.Param)('itemId')),
+    __param(2, (0, common_1.Query)('asOfDate')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", void 0)
+], MastersController.prototype, "getCustomerActivePrice", null);
+__decorate([
+    (0, common_1.Patch)('customers/:customerId/prices/:priceId'),
     (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER),
     (0, swagger_1.ApiOperation)({ summary: 'Update customer item price' }),
-    (0, swagger_1.ApiParam)({ name: 'id', type: 'string' }),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
+    (0, swagger_1.ApiParam)({ name: 'customerId', type: 'string' }),
+    (0, swagger_1.ApiParam)({ name: 'priceId', type: 'string' }),
+    __param(0, (0, common_1.Param)('customerId')),
+    __param(1, (0, common_1.Param)('priceId')),
+    __param(2, (0, common_1.Body)()),
+    __param(3, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, dto_1.UpdateCustomerItemPriceDto]),
+    __metadata("design:paramtypes", [String, String, dto_1.UpdateCustomerItemPriceDto, Object]),
     __metadata("design:returntype", void 0)
 ], MastersController.prototype, "updateCustomerItemPrice", null);
+__decorate([
+    (0, common_1.Patch)('customers/:customerId/prices/:priceId/deactivate'),
+    (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER),
+    (0, swagger_1.ApiOperation)({ summary: 'Deactivate customer item price' }),
+    (0, swagger_1.ApiParam)({ name: 'customerId', type: 'string' }),
+    (0, swagger_1.ApiParam)({ name: 'priceId', type: 'string' }),
+    __param(0, (0, common_1.Param)('customerId')),
+    __param(1, (0, common_1.Param)('priceId')),
+    __param(2, (0, common_1.Body)()),
+    __param(3, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, dto_1.DeactivateCustomerPriceDto, Object]),
+    __metadata("design:returntype", void 0)
+], MastersController.prototype, "deactivateCustomerItemPrice", null);
 exports.MastersController = MastersController = __decorate([
     (0, swagger_1.ApiTags)('Masters'),
     (0, swagger_1.ApiBearerAuth)(),

@@ -9,16 +9,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PurchasingModule = void 0;
 const common_1 = require("@nestjs/common");
 const purchasing_service_1 = require("./purchasing.service");
+const pdf_service_1 = require("./pdf.service");
 const purchasing_controller_1 = require("./purchasing.controller");
-const masters_module_1 = require("../masters/masters.module");
+const prisma_module_1 = require("../prisma/prisma.module");
 let PurchasingModule = class PurchasingModule {
 };
 exports.PurchasingModule = PurchasingModule;
 exports.PurchasingModule = PurchasingModule = __decorate([
     (0, common_1.Module)({
-        imports: [masters_module_1.MastersModule],
-        controllers: [purchasing_controller_1.PurchasingController],
-        providers: [purchasing_service_1.PurchasingService],
+        imports: [prisma_module_1.PrismaModule],
+        controllers: [
+            purchasing_controller_1.PurchasingController,
+            purchasing_controller_1.PurchaseInvoicesController,
+            purchasing_controller_1.PaymentsController,
+        ],
+        providers: [purchasing_service_1.PurchasingService, pdf_service_1.PdfService],
         exports: [purchasing_service_1.PurchasingService],
     })
 ], PurchasingModule);

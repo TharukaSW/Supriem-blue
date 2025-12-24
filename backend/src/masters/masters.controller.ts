@@ -1,5 +1,5 @@
 import {
-    Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards,
+    Controller, Get, Post, Put, Delete, Patch, Body, Param, Query, UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { MastersService } from './masters.service';
@@ -7,14 +7,15 @@ import {
     CreateUnitDto, UpdateUnitDto,
     CreateCategoryDto, UpdateCategoryDto,
     CreateItemDto, UpdateItemDto, ItemQueryDto,
-    CreateSupplierDto, UpdateSupplierDto, SupplierQueryDto,
-    CreateCustomerDto, UpdateCustomerDto, CustomerQueryDto,
-    CreateSupplierItemPriceDto, UpdateSupplierItemPriceDto,
-    CreateCustomerItemPriceDto, UpdateCustomerItemPriceDto,
+    CreateSupplierDto, UpdateSupplierDto, SupplierQueryDto, DeactivateSupplierDto,
+    CreateCustomerDto, UpdateCustomerDto, CustomerQueryDto, DeactivateCustomerDto,
+    CreateSupplierItemPriceDto, UpdateSupplierItemPriceDto, SupplierPriceQueryDto, DeactivateSupplierPriceDto,
+    CreateCustomerItemPriceDto, UpdateCustomerItemPriceDto, CustomerPriceQueryDto, DeactivateCustomerPriceDto,
 } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { RoleName } from '@prisma/client';
 
 @ApiTags('Masters')
@@ -139,36 +140,62 @@ export class MastersController {
     @Post('suppliers')
     @Roles(RoleName.ADMIN, RoleName.MANAGER)
     @ApiOperation({ summary: 'Create a supplier' })
-    createSupplier(@Body() dto: CreateSupplierDto) {
-        return this.mastersService.createSupplier(dto);
+    createSupplier(
+        @Body() dto: CreateSupplierDto,
+        @CurrentUser() user: any,
+    ) {
+        return this.mastersService.createSupplier(dto, user.userId);
     }
 
     @Get('suppliers')
     @Roles(RoleName.ADMIN, RoleName.MANAGER, RoleName.USER)
-    @ApiOperation({ summary: 'Get all suppliers with pagination' })
+    @ApiOperation({ summary: 'Get all suppliers with pagination and optional price lists' })
     findAllSuppliers(@Query() query: SupplierQueryDto) {
         return this.mastersService.findAllSuppliers(query);
     }
 
     @Get('suppliers/:id')
     @Roles(RoleName.ADMIN, RoleName.MANAGER, RoleName.USER)
-    @ApiOperation({ summary: 'Get supplier by ID' })
+    @ApiOperation({ summary: 'Get supplier by ID with optional price lists' })
     @ApiParam({ name: 'id', type: 'string' })
-    findOneSupplier(@Param('id') id: string) {
-        return this.mastersService.findOneSupplier(BigInt(id));
+    @ApiQuery({ name: 'includePrices', required: false, type: 'boolean' })
+    findOneSupplier(
+        @Param('id') id: string,
+        @Query('includePrices') includePrices?: string,
+    ) {
+        return this.mastersService.findOneSupplier(
+            BigInt(id),
+            includePrices === 'true',
+        );
     }
 
-    @Put('suppliers/:id')
+    @Patch('suppliers/:id')
     @Roles(RoleName.ADMIN, RoleName.MANAGER)
     @ApiOperation({ summary: 'Update supplier' })
     @ApiParam({ name: 'id', type: 'string' })
-    updateSupplier(@Param('id') id: string, @Body() dto: UpdateSupplierDto) {
-        return this.mastersService.updateSupplier(BigInt(id), dto);
+    updateSupplier(
+        @Param('id') id: string,
+        @Body() dto: UpdateSupplierDto,
+        @CurrentUser() user: any,
+    ) {
+        return this.mastersService.updateSupplier(BigInt(id), dto, user.userId);
+    }
+
+    @Patch('suppliers/:id/deactivate')
+    @Roles(RoleName.ADMIN, RoleName.MANAGER)
+    @ApiOperation({ summary: 'Deactivate supplier (soft delete)' })
+    @ApiParam({ name: 'id', type: 'string' })
+    deactivateSupplier(
+        @Param('id') id: string,
+        @Body() dto: DeactivateSupplierDto,
+        @CurrentUser() user: any,
+    ) {
+        return this.mastersService.deactivateSupplier(BigInt(id), dto, user.userId);
     }
 
     @Delete('suppliers/:id')
     @Roles(RoleName.ADMIN)
-    @ApiOperation({ summary: 'Deactivate supplier' })
+    @ApiOperation({ summary: 'Deactivate supplier (deprecated - use PATCH /suppliers/:id/deactivate)' })
     @ApiParam({ name: 'id', type: 'string' })
     deleteSupplier(@Param('id') id: string) {
         return this.mastersService.deleteSupplier(BigInt(id));
@@ -178,94 +205,234 @@ export class MastersController {
     @Post('customers')
     @Roles(RoleName.ADMIN, RoleName.MANAGER)
     @ApiOperation({ summary: 'Create a customer' })
-    createCustomer(@Body() dto: CreateCustomerDto) {
-        return this.mastersService.createCustomer(dto);
+    createCustomer(
+        @Body() dto: CreateCustomerDto,
+        @CurrentUser() user: any,
+    ) {
+        return this.mastersService.createCustomer(dto, user.userId);
     }
 
     @Get('customers')
     @Roles(RoleName.ADMIN, RoleName.MANAGER, RoleName.USER)
-    @ApiOperation({ summary: 'Get all customers with pagination' })
+    @ApiOperation({ summary: 'Get all customers with pagination and optional price lists' })
     findAllCustomers(@Query() query: CustomerQueryDto) {
         return this.mastersService.findAllCustomers(query);
     }
 
     @Get('customers/:id')
     @Roles(RoleName.ADMIN, RoleName.MANAGER, RoleName.USER)
-    @ApiOperation({ summary: 'Get customer by ID' })
+    @ApiOperation({ summary: 'Get customer by ID with optional price lists' })
     @ApiParam({ name: 'id', type: 'string' })
-    findOneCustomer(@Param('id') id: string) {
-        return this.mastersService.findOneCustomer(BigInt(id));
+    @ApiQuery({ name: 'includePrices', required: false, type: 'boolean' })
+    findOneCustomer(
+        @Param('id') id: string,
+        @Query('includePrices') includePrices?: string,
+    ) {
+        return this.mastersService.findOneCustomer(
+            BigInt(id),
+            includePrices === 'true',
+        );
     }
 
-    @Put('customers/:id')
+    @Patch('customers/:id')
     @Roles(RoleName.ADMIN, RoleName.MANAGER)
     @ApiOperation({ summary: 'Update customer' })
     @ApiParam({ name: 'id', type: 'string' })
-    updateCustomer(@Param('id') id: string, @Body() dto: UpdateCustomerDto) {
-        return this.mastersService.updateCustomer(BigInt(id), dto);
+    updateCustomer(
+        @Param('id') id: string,
+        @Body() dto: UpdateCustomerDto,
+        @CurrentUser() user: any,
+    ) {
+        return this.mastersService.updateCustomer(BigInt(id), dto, user.userId);
+    }
+
+    @Patch('customers/:id/deactivate')
+    @Roles(RoleName.ADMIN, RoleName.MANAGER)
+    @ApiOperation({ summary: 'Deactivate customer (soft delete)' })
+    @ApiParam({ name: 'id', type: 'string' })
+    deactivateCustomer(
+        @Param('id') id: string,
+        @Body() dto: DeactivateCustomerDto,
+        @CurrentUser() user: any,
+    ) {
+        return this.mastersService.deactivateCustomer(BigInt(id), dto, user.userId);
     }
 
     @Delete('customers/:id')
     @Roles(RoleName.ADMIN)
-    @ApiOperation({ summary: 'Deactivate customer' })
+    @ApiOperation({ summary: 'Deactivate customer (deprecated - use PATCH /customers/:id/deactivate)' })
     @ApiParam({ name: 'id', type: 'string' })
     deleteCustomer(@Param('id') id: string) {
         return this.mastersService.deleteCustomer(BigInt(id));
     }
 
     // ========== SUPPLIER ITEM PRICES ==========
-    @Post('supplier-prices')
+    @Post('suppliers/:supplierId/prices')
     @Roles(RoleName.ADMIN, RoleName.MANAGER)
-    @ApiOperation({ summary: 'Create supplier item price' })
-    createSupplierItemPrice(@Body() dto: CreateSupplierItemPriceDto) {
-        return this.mastersService.createSupplierItemPrice(dto);
-    }
-
-    @Get('supplier-prices')
-    @Roles(RoleName.ADMIN, RoleName.MANAGER)
-    @ApiOperation({ summary: 'Get supplier item prices' })
-    @ApiQuery({ name: 'supplierId', required: false })
-    @ApiQuery({ name: 'itemId', required: false })
-    findSupplierItemPrices(
-        @Query('supplierId') supplierId?: string,
-        @Query('itemId') itemId?: string,
+    @ApiOperation({ summary: 'Add a new price for supplier item' })
+    @ApiParam({ name: 'supplierId', type: 'string' })
+    createSupplierItemPrice(
+        @Param('supplierId') supplierId: string,
+        @Body() dto: CreateSupplierItemPriceDto,
+        @CurrentUser() user: any,
     ) {
-        return this.mastersService.findSupplierItemPrices(supplierId, itemId);
+        return this.mastersService.createSupplierItemPrice(
+            BigInt(supplierId),
+            dto,
+            user.userId,
+        );
     }
 
-    @Put('supplier-prices/:id')
+    @Get('suppliers/:supplierId/prices')
+    @Roles(RoleName.ADMIN, RoleName.MANAGER, RoleName.USER)
+    @ApiOperation({ summary: 'Get supplier price list with filters' })
+    @ApiParam({ name: 'supplierId', type: 'string' })
+    findSupplierItemPrices(
+        @Param('supplierId') supplierId: string,
+        @Query() query: SupplierPriceQueryDto,
+    ) {
+        return this.mastersService.findSupplierItemPrices(BigInt(supplierId), query);
+    }
+
+    @Get('suppliers/:supplierId/prices/active/:itemId')
+    @Roles(RoleName.ADMIN, RoleName.MANAGER, RoleName.USER)
+    @ApiOperation({ summary: 'Get active price for supplier + item combination' })
+    @ApiParam({ name: 'supplierId', type: 'string' })
+    @ApiParam({ name: 'itemId', type: 'string' })
+    @ApiQuery({ name: 'asOfDate', required: false, description: 'Date for price lookup (YYYY-MM-DD)' })
+    getSupplierActivePrice(
+        @Param('supplierId') supplierId: string,
+        @Param('itemId') itemId: string,
+        @Query('asOfDate') asOfDate?: string,
+    ) {
+        const date = asOfDate ? new Date(asOfDate) : undefined;
+        return this.mastersService.getSupplierActivePrice(
+            BigInt(supplierId),
+            BigInt(itemId),
+            date,
+        );
+    }
+
+    @Patch('suppliers/:supplierId/prices/:priceId')
     @Roles(RoleName.ADMIN, RoleName.MANAGER)
     @ApiOperation({ summary: 'Update supplier item price' })
-    @ApiParam({ name: 'id', type: 'string' })
-    updateSupplierItemPrice(@Param('id') id: string, @Body() dto: UpdateSupplierItemPriceDto) {
-        return this.mastersService.updateSupplierItemPrice(BigInt(id), dto);
+    @ApiParam({ name: 'supplierId', type: 'string' })
+    @ApiParam({ name: 'priceId', type: 'string' })
+    updateSupplierItemPrice(
+        @Param('supplierId') supplierId: string,
+        @Param('priceId') priceId: string,
+        @Body() dto: UpdateSupplierItemPriceDto,
+        @CurrentUser() user: any,
+    ) {
+        return this.mastersService.updateSupplierItemPrice(
+            BigInt(supplierId),
+            BigInt(priceId),
+            dto,
+            user.userId,
+        );
+    }
+
+    @Patch('suppliers/:supplierId/prices/:priceId/deactivate')
+    @Roles(RoleName.ADMIN, RoleName.MANAGER)
+    @ApiOperation({ summary: 'Deactivate supplier item price' })
+    @ApiParam({ name: 'supplierId', type: 'string' })
+    @ApiParam({ name: 'priceId', type: 'string' })
+    deactivateSupplierItemPrice(
+        @Param('supplierId') supplierId: string,
+        @Param('priceId') priceId: string,
+        @Body() dto: DeactivateSupplierPriceDto,
+        @CurrentUser() user: any,
+    ) {
+        return this.mastersService.deactivateSupplierItemPrice(
+            BigInt(supplierId),
+            BigInt(priceId),
+            dto,
+            user.userId,
+        );
     }
 
     // ========== CUSTOMER ITEM PRICES ==========
-    @Post('customer-prices')
+    @Post('customers/:customerId/prices')
     @Roles(RoleName.ADMIN, RoleName.MANAGER)
-    @ApiOperation({ summary: 'Create customer item price' })
-    createCustomerItemPrice(@Body() dto: CreateCustomerItemPriceDto) {
-        return this.mastersService.createCustomerItemPrice(dto);
-    }
-
-    @Get('customer-prices')
-    @Roles(RoleName.ADMIN, RoleName.MANAGER)
-    @ApiOperation({ summary: 'Get customer item prices' })
-    @ApiQuery({ name: 'customerId', required: false })
-    @ApiQuery({ name: 'itemId', required: false })
-    findCustomerItemPrices(
-        @Query('customerId') customerId?: string,
-        @Query('itemId') itemId?: string,
+    @ApiOperation({ summary: 'Add a new price for customer item' })
+    @ApiParam({ name: 'customerId', type: 'string' })
+    createCustomerItemPrice(
+        @Param('customerId') customerId: string,
+        @Body() dto: CreateCustomerItemPriceDto,
+        @CurrentUser() user: any,
     ) {
-        return this.mastersService.findCustomerItemPrices(customerId, itemId);
+        return this.mastersService.createCustomerItemPrice(
+            BigInt(customerId),
+            dto,
+            user.userId,
+        );
     }
 
-    @Put('customer-prices/:id')
+    @Get('customers/:customerId/prices')
+    @Roles(RoleName.ADMIN, RoleName.MANAGER, RoleName.USER)
+    @ApiOperation({ summary: 'Get customer price list with filters' })
+    @ApiParam({ name: 'customerId', type: 'string' })
+    findCustomerItemPrices(
+        @Param('customerId') customerId: string,
+        @Query() query: CustomerPriceQueryDto,
+    ) {
+        return this.mastersService.findCustomerItemPrices(BigInt(customerId), query);
+    }
+
+    @Get('customers/:customerId/prices/active/:itemId')
+    @Roles(RoleName.ADMIN, RoleName.MANAGER, RoleName.USER)
+    @ApiOperation({ summary: 'Get active price for customer + item combination' })
+    @ApiParam({ name: 'customerId', type: 'string' })
+    @ApiParam({ name: 'itemId', type: 'string' })
+    @ApiQuery({ name: 'asOfDate', required: false, description: 'Date for price lookup (YYYY-MM-DD)' })
+    getCustomerActivePrice(
+        @Param('customerId') customerId: string,
+        @Param('itemId') itemId: string,
+        @Query('asOfDate') asOfDate?: string,
+    ) {
+        const date = asOfDate ? new Date(asOfDate) : undefined;
+        return this.mastersService.getCustomerActivePrice(
+            BigInt(customerId),
+            BigInt(itemId),
+            date,
+        );
+    }
+
+    @Patch('customers/:customerId/prices/:priceId')
     @Roles(RoleName.ADMIN, RoleName.MANAGER)
     @ApiOperation({ summary: 'Update customer item price' })
-    @ApiParam({ name: 'id', type: 'string' })
-    updateCustomerItemPrice(@Param('id') id: string, @Body() dto: UpdateCustomerItemPriceDto) {
-        return this.mastersService.updateCustomerItemPrice(BigInt(id), dto);
+    @ApiParam({ name: 'customerId', type: 'string' })
+    @ApiParam({ name: 'priceId', type: 'string' })
+    updateCustomerItemPrice(
+        @Param('customerId') customerId: string,
+        @Param('priceId') priceId: string,
+        @Body() dto: UpdateCustomerItemPriceDto,
+        @CurrentUser() user: any,
+    ) {
+        return this.mastersService.updateCustomerItemPrice(
+            BigInt(customerId),
+            BigInt(priceId),
+            dto,
+            user.userId,
+        );
+    }
+
+    @Patch('customers/:customerId/prices/:priceId/deactivate')
+    @Roles(RoleName.ADMIN, RoleName.MANAGER)
+    @ApiOperation({ summary: 'Deactivate customer item price' })
+    @ApiParam({ name: 'customerId', type: 'string' })
+    @ApiParam({ name: 'priceId', type: 'string' })
+    deactivateCustomerItemPrice(
+        @Param('customerId') customerId: string,
+        @Param('priceId') priceId: string,
+        @Body() dto: DeactivateCustomerPriceDto,
+        @CurrentUser() user: any,
+    ) {
+        return this.mastersService.deactivateCustomerItemPrice(
+            BigInt(customerId),
+            BigInt(priceId),
+            dto,
+            user.userId,
+        );
     }
 }

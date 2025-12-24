@@ -1,5 +1,5 @@
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateUnitDto, UpdateUnitDto, CreateCategoryDto, UpdateCategoryDto, CreateItemDto, UpdateItemDto, ItemQueryDto, CreateSupplierDto, UpdateSupplierDto, SupplierQueryDto, CreateCustomerDto, UpdateCustomerDto, CustomerQueryDto, CreateSupplierItemPriceDto, UpdateSupplierItemPriceDto, CreateCustomerItemPriceDto, UpdateCustomerItemPriceDto } from './dto';
+import { CreateUnitDto, UpdateUnitDto, CreateCategoryDto, UpdateCategoryDto, CreateItemDto, UpdateItemDto, ItemQueryDto, CreateSupplierDto, UpdateSupplierDto, SupplierQueryDto, DeactivateSupplierDto, CreateCustomerDto, UpdateCustomerDto, CustomerQueryDto, DeactivateCustomerDto, CreateSupplierItemPriceDto, UpdateSupplierItemPriceDto, SupplierPriceQueryDto, DeactivateSupplierPriceDto, CreateCustomerItemPriceDto, UpdateCustomerItemPriceDto, CustomerPriceQueryDto, DeactivateCustomerPriceDto } from './dto';
 export declare class MastersService {
     private prisma;
     constructor(prisma: PrismaService);
@@ -61,10 +61,10 @@ export declare class MastersService {
         updatedAt: Date;
         unitId: number | null;
         categoryId: number | null;
+        itemId: bigint;
         itemCode: string;
         itemName: string;
         itemType: import(".prisma/client").$Enums.ItemType;
-        itemId: bigint;
     }>;
     findAllItems(query: ItemQueryDto): Promise<{
         data: any[];
@@ -81,7 +81,7 @@ export declare class MastersService {
         message: string;
     }>;
     private transformItem;
-    createSupplier(dto: CreateSupplierDto): Promise<any>;
+    createSupplier(dto: CreateSupplierDto, userId: string): Promise<any>;
     findAllSuppliers(query: SupplierQueryDto): Promise<{
         data: any[];
         meta: {
@@ -91,13 +91,18 @@ export declare class MastersService {
             totalPages: number;
         };
     }>;
-    findOneSupplier(id: bigint): Promise<any>;
-    updateSupplier(id: bigint, dto: UpdateSupplierDto): Promise<any>;
+    findOneSupplier(id: bigint, includePrices?: boolean): Promise<any>;
+    updateSupplier(id: bigint, dto: UpdateSupplierDto, userId: string): Promise<any>;
+    deactivateSupplier(id: bigint, dto: DeactivateSupplierDto, userId: string): Promise<{
+        message: string;
+        reason: string | undefined;
+        supplier: any;
+    }>;
     deleteSupplier(id: bigint): Promise<{
         message: string;
     }>;
     private transformSupplier;
-    createCustomer(dto: CreateCustomerDto): Promise<any>;
+    createCustomer(dto: CreateCustomerDto, userId: string): Promise<any>;
     findAllCustomers(query: CustomerQueryDto): Promise<{
         data: any[];
         meta: {
@@ -107,34 +112,59 @@ export declare class MastersService {
             totalPages: number;
         };
     }>;
-    findOneCustomer(id: bigint): Promise<any>;
-    updateCustomer(id: bigint, dto: UpdateCustomerDto): Promise<any>;
+    findOneCustomer(id: bigint, includePrices?: boolean): Promise<any>;
+    updateCustomer(id: bigint, dto: UpdateCustomerDto, userId: string): Promise<any>;
+    deactivateCustomer(id: bigint, dto: DeactivateCustomerDto, userId: string): Promise<{
+        message: string;
+        reason: string | undefined;
+        customer: any;
+    }>;
     deleteCustomer(id: bigint): Promise<{
         message: string;
     }>;
     private transformCustomer;
-    createSupplierItemPrice(dto: CreateSupplierItemPriceDto): Promise<any>;
-    findSupplierItemPrices(supplierId?: string, itemId?: string): Promise<any[]>;
+    createSupplierItemPrice(supplierId: bigint, dto: CreateSupplierItemPriceDto, userId: string): Promise<any>;
+    findSupplierItemPrices(supplierId: bigint, query: SupplierPriceQueryDto): Promise<any[]>;
+    updateSupplierItemPrice(supplierId: bigint, priceId: bigint, dto: UpdateSupplierItemPriceDto, userId: string): Promise<any>;
+    deactivateSupplierItemPrice(supplierId: bigint, priceId: bigint, dto: DeactivateSupplierPriceDto, userId: string): Promise<{
+        message: string;
+        price: any;
+    }>;
+    getSupplierActivePrice(supplierId: bigint, itemId: bigint, asOfDate?: Date): Promise<any>;
     getLatestSupplierPrice(supplierId: bigint, itemId: bigint): Promise<{
         isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
         supplierId: bigint;
+        createdBy: bigint | null;
+        updatedBy: bigint | null;
         itemId: bigint;
+        supplierItemPriceId: bigint;
         unitPrice: import("@prisma/client/runtime/library").Decimal;
         effectiveFrom: Date;
-        supplierItemPriceId: bigint;
+        endDate: Date | null;
     } | null>;
-    updateSupplierItemPrice(id: bigint, dto: UpdateSupplierItemPriceDto): Promise<any>;
     private transformSupplierPrice;
-    createCustomerItemPrice(dto: CreateCustomerItemPriceDto): Promise<any>;
-    findCustomerItemPrices(customerId?: string, itemId?: string): Promise<any[]>;
+    createCustomerItemPrice(customerId: bigint, dto: CreateCustomerItemPriceDto, userId: string): Promise<any>;
+    findCustomerItemPrices(customerId: bigint, query: CustomerPriceQueryDto): Promise<any[]>;
+    updateCustomerItemPrice(customerId: bigint, priceId: bigint, dto: UpdateCustomerItemPriceDto, userId: string): Promise<any>;
+    deactivateCustomerItemPrice(customerId: bigint, priceId: bigint, dto: DeactivateCustomerPriceDto, userId: string): Promise<{
+        message: string;
+        price: any;
+    }>;
+    getCustomerActivePrice(customerId: bigint, itemId: bigint, asOfDate?: Date): Promise<any>;
     getLatestCustomerPrice(customerId: bigint, itemId: bigint): Promise<{
         isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        createdBy: bigint | null;
+        updatedBy: bigint | null;
         itemId: bigint;
         unitPrice: import("@prisma/client/runtime/library").Decimal;
         effectiveFrom: Date;
+        endDate: Date | null;
         customerId: bigint;
         customerItemPriceId: bigint;
     } | null>;
-    updateCustomerItemPrice(id: bigint, dto: UpdateCustomerItemPriceDto): Promise<any>;
     private transformCustomerPrice;
 }

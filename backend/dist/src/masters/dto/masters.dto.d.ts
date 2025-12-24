@@ -55,6 +55,10 @@ export declare class SupplierQueryDto {
     limit?: number;
     search?: string;
     isActive?: boolean;
+    includePrices?: boolean;
+}
+export declare class DeactivateSupplierDto {
+    reason?: string;
 }
 export declare class CreateCustomerDto {
     customerCode: string;
@@ -77,24 +81,46 @@ export declare class CustomerQueryDto {
     limit?: number;
     search?: string;
     isActive?: boolean;
+    includePrices?: boolean;
+}
+export declare class DeactivateCustomerDto {
+    reason?: string;
 }
 export declare class CreateSupplierItemPriceDto {
-    supplierId: string;
     itemId: string;
     unitPrice: number;
     effectiveFrom?: string;
+    endDate?: string;
 }
 export declare class UpdateSupplierItemPriceDto {
     unitPrice?: number;
+    endDate?: string;
     isActive?: boolean;
 }
+export declare class SupplierPriceQueryDto {
+    itemId?: string;
+    activeOnly?: boolean;
+    asOfDate?: string;
+}
+export declare class DeactivateSupplierPriceDto {
+    endDate?: string;
+}
 export declare class CreateCustomerItemPriceDto {
-    customerId: string;
     itemId: string;
     unitPrice: number;
     effectiveFrom?: string;
+    endDate?: string;
 }
 export declare class UpdateCustomerItemPriceDto {
     unitPrice?: number;
+    endDate?: string;
     isActive?: boolean;
+}
+export declare class CustomerPriceQueryDto {
+    itemId?: string;
+    activeOnly?: boolean;
+    asOfDate?: string;
+}
+export declare class DeactivateCustomerPriceDto {
+    endDate?: string;
 }

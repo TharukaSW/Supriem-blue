@@ -1,0 +1,189 @@
+
+> backend@0.0.1 start
+> nest start
+
+[96mprisma/seed.ts[0m:[93m193[0m:[93m9[0m - [91merror[0m[90m TS2322: [0mType '{ itemCode: string; itemName: string; itemType: string; categoryId: number; unitId: number; isActive: boolean; }' is not assignable to type '(Without<ItemCreateInput, ItemUncheckedCreateInput> & ItemUncheckedCreateInput) | (Without<...> & ItemCreateInput)'.
+  Type '{ itemCode: string; itemName: string; itemType: string; categoryId: number; unitId: number; isActive: boolean; }' is not assignable to type 'Without<ItemCreateInput, ItemUncheckedCreateInput> & ItemUncheckedCreateInput'.
+    Type '{ itemCode: string; itemName: string; itemType: string; categoryId: number; unitId: number; isActive: boolean; }' is not assignable to type 'ItemUncheckedCreateInput'.
+      Types of property 'itemType' are incompatible.
+        Type 'string' is not assignable to type 'ItemType'.
+
+[7m193[0m         create: item,
+[7m   [0m [91m        ~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m15604[0m:[93m5[0m
+    [7m15604[0m     create: XOR<ItemCreateInput, ItemUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~~~[0m
+    The expected type comes from property 'create' which is declared here on type '{ select?: ItemSelect<DefaultArgs> | null | undefined; include?: ItemInclude<DefaultArgs> | null | undefined; where: ItemWhereUniqueInput; create: (Without<...> & ItemUncheckedCreateInput) | (Without<...> & ItemCreateInput); update: (Without<...> & ItemUncheckedUpdateInput) | (Without<...> & ItemUpdateInput); }'
+[96msrc/purchasing/dto/index.ts[0m:[93m2[0m:[93m1[0m - [91merror[0m[90m TS2308: [0mModule './purchasing.dto' has already exported a member named 'CreatePurchaseOrderDto'. Consider explicitly re-exporting to resolve the ambiguity.
+
+[7m2[0m export * from './create-purchase-order.dto';
+[7m [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/purchasing/dto/index.ts[0m:[93m4[0m:[93m1[0m - [91merror[0m[90m TS2308: [0mModule './purchasing.dto' has already exported a member named 'UpdatePurchaseOrderDto'. Consider explicitly re-exporting to resolve the ambiguity.
+
+[7m4[0m export * from './update-purchase-order.dto';
+[7m [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/purchasing/purchasing.controller.ts[0m:[93m209[0m:[93m17[0m - [91merror[0m[90m TS1272: [0mA type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+
+[7m209[0m     @Res() res: Response,
+[7m   [0m [91m                ~~~~~~~~[0m
+
+  [96msrc/purchasing/purchasing.controller.ts[0m:[93m14[0m:[93m10[0m
+    [7m14[0m import { Response } from 'express';
+    [7m  [0m [96m         ~~~~~~~~[0m
+    'Response' was imported here.
+[96msrc/purchasing/purchasing.controller.ts[0m:[93m218[0m:[93m51[0m - [91merror[0m[90m TS2345: [0mArgument of type '{ payments: { createdAt: Date; notes: string | null; amount: Decimal; method: PayMethod; invoiceId: bigint; paymentDate: Date; referenceNo: string | null; receivedBy: bigint | null; paymentId: bigint; paymentNo: string; }[]; supplier: { ...; } | null; purchaseOrder: ({ ...; } & { ...; }) | null; lines: ({ ...; } & {...' is not assignable to parameter of type '{ createdAt: Date; supplierId: bigint | null; createdBy: bigint | null; total: Decimal; invoiceId: bigint; invoiceNo: string; invoiceType: InvoiceType; ... 16 more ...; matchCheckedAt: Date | null; } & { ...; }'.
+  Type '{ payments: { createdAt: Date; notes: string | null; amount: Decimal; method: PayMethod; invoiceId: bigint; paymentDate: Date; referenceNo: string | null; receivedBy: bigint | null; paymentId: bigint; paymentNo: string; }[]; supplier: { ...; } | null; purchaseOrder: ({ ...; } & { ...; }) | null; lines: ({ ...; } & {...' is not assignable to type '{ supplier?: { email: string | null; phone: string | null; isActive: boolean; createdAt: Date; updatedAt: Date; supplierId: bigint; supplierCode: string; supplierName: string; ... 5 more ...; deactivatedBy: bigint | null; } | undefined; lines?: ({ ...; } & { ...; })[] | undefined; }'.
+    Types of property 'supplier' are incompatible.
+      Type '{ email: string | null; phone: string | null; isActive: boolean; createdAt: Date; updatedAt: Date; supplierId: bigint; supplierCode: string; supplierName: string; contactName: string | null; ... 4 more ...; deactivatedBy: bigint | null; } | null' is not assignable to type '{ email: string | null; phone: string | null; isActive: boolean; createdAt: Date; updatedAt: Date; supplierId: bigint; supplierCode: string; supplierName: string; contactName: string | null; ... 4 more ...; deactivatedBy: bigint | null; } | undefined'.
+        Type 'null' is not assignable to type '{ email: string | null; phone: string | null; isActive: boolean; createdAt: Date; updatedAt: Date; supplierId: bigint; supplierCode: string; supplierName: string; contactName: string | null; ... 4 more ...; deactivatedBy: bigint | null; } | undefined'.
+
+[7m218[0m       content = this.pdfService.generateA4Invoice(invoice);
+[7m   [0m [91m                                                  ~~~~~~~[0m
+[96msrc/purchasing/purchasing.controller.ts[0m:[93m223[0m:[93m58[0m - [91merror[0m[90m TS2345: [0mArgument of type '{ payments: { createdAt: Date; notes: string | null; amount: Decimal; method: PayMethod; invoiceId: bigint; paymentDate: Date; referenceNo: string | null; receivedBy: bigint | null; paymentId: bigint; paymentNo: string; }[]; supplier: { ...; } | null; purchaseOrder: ({ ...; } & { ...; }) | null; lines: ({ ...; } & {...' is not assignable to parameter of type '{ createdAt: Date; supplierId: bigint | null; createdBy: bigint | null; total: Decimal; invoiceId: bigint; invoiceNo: string; invoiceType: InvoiceType; ... 16 more ...; matchCheckedAt: Date | null; } & { ...; }'.
+  Type '{ payments: { createdAt: Date; notes: string | null; amount: Decimal; method: PayMethod; invoiceId: bigint; paymentDate: Date; referenceNo: string | null; receivedBy: bigint | null; paymentId: bigint; paymentNo: string; }[]; supplier: { ...; } | null; purchaseOrder: ({ ...; } & { ...; }) | null; lines: ({ ...; } & {...' is not assignable to type '{ supplier?: { email: string | null; phone: string | null; isActive: boolean; createdAt: Date; updatedAt: Date; supplierId: bigint; supplierCode: string; supplierName: string; ... 5 more ...; deactivatedBy: bigint | null; } | undefined; lines?: ({ ...; } & { ...; })[] | undefined; }'.
+    Types of property 'supplier' are incompatible.
+      Type '{ email: string | null; phone: string | null; isActive: boolean; createdAt: Date; updatedAt: Date; supplierId: bigint; supplierCode: string; supplierName: string; contactName: string | null; ... 4 more ...; deactivatedBy: bigint | null; } | null' is not assignable to type '{ email: string | null; phone: string | null; isActive: boolean; createdAt: Date; updatedAt: Date; supplierId: bigint; supplierCode: string; supplierName: string; contactName: string | null; ... 4 more ...; deactivatedBy: bigint | null; } | undefined'.
+        Type 'null' is not assignable to type '{ email: string | null; phone: string | null; isActive: boolean; createdAt: Date; updatedAt: Date; supplierId: bigint; supplierCode: string; supplierName: string; contactName: string | null; ... 4 more ...; deactivatedBy: bigint | null; } | undefined'.
+
+[7m223[0m       content = this.pdfService.generateDotMatrixInvoice(invoice);
+[7m   [0m [91m                                                         ~~~~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m54[0m:[93m38[0m - [91merror[0m[90m TS18048: [0m'line.unitPrice' is possibly 'undefined'.
+
+[7m54[0m         const lineTotal = line.qty * line.unitPrice;
+[7m  [0m [91m                                     ~~~~~~~~~~~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m69[0m:[93m54[0m - [91merror[0m[90m TS18048: [0m'line.unitPrice' is possibly 'undefined'.
+
+[7m69[0m           Math.abs(Number(supplierPrice.unitPrice) - line.unitPrice) > 0.01
+[7m  [0m [91m                                                     ~~~~~~~~~~~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m73[0m:[93m13[0m - [91merror[0m[90m TS18047: [0m'user' is possibly 'null'.
+
+[7m73[0m             user.role.roleName !== RoleName.ADMIN &&
+[7m  [0m [91m            ~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m74[0m:[93m13[0m - [91merror[0m[90m TS18047: [0m'user' is possibly 'null'.
+
+[7m74[0m             user.role.roleName !== RoleName.MANAGER
+[7m  [0m [91m            ~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m82[0m:[93m33[0m - [91merror[0m[90m TS2339: [0mProperty 'overrideReason' does not exist on type 'PurchaseOrderLineDto'.
+
+[7m82[0m           overrideReason = line.overrideReason || 'Manual price adjustment';
+[7m  [0m [91m                                ~~~~~~~~~~~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m83[0m:[93m11[0m - [91merror[0m[90m TS2322: [0mType 'bigint' is not assignable to type 'null'.
+
+[7m83[0m           overriddenBy = userId;
+[7m  [0m [91m          ~~~~~~~~~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m116[0m:[93m11[0m - [91merror[0m[90m TS2322: [0mType '{ itemId: bigint; qty: number; unitPrice: number | undefined; lineTotal: number; priceSource: string; overrideReason: null; overriddenBy: null; }[]' is not assignable to type '(Without<PurchaseOrderLineCreateWithoutPurchaseOrderInput, PurchaseOrderLineUncheckedCreateWithoutPurchaseOrderInput> & PurchaseOrderLineUncheckedCreateWithoutPurchaseOrderInput) | (Without<...> & PurchaseOrderLineCreateWithoutPurchaseOrderInput) | PurchaseOrderLineCreateWithoutPurchaseOrderInput[] | PurchaseOrderLi...'.
+  Type '{ itemId: bigint; qty: number; unitPrice: number | undefined; lineTotal: number; priceSource: string; overrideReason: null; overriddenBy: null; }[]' is not assignable to type 'PurchaseOrderLineCreateWithoutPurchaseOrderInput[]'.
+    Property 'item' is missing in type '{ itemId: bigint; qty: number; unitPrice: number | undefined; lineTotal: number; priceSource: string; overrideReason: null; overriddenBy: null; }' but required in type 'PurchaseOrderLineCreateWithoutPurchaseOrderInput'.
+
+[7m116[0m           create: linesData,
+[7m   [0m [91m          ~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m50110[0m:[93m5[0m
+    [7m50110[0m     item: ItemCreateNestedOneWithoutPurchaseOrderLinesInput
+    [7m     [0m [96m    ~~~~[0m
+    'item' is declared here.
+[96msrc/purchasing/purchasing.service.ts[0m:[93m226[0m:[93m13[0m - [91merror[0m[90m TS2339: [0mProperty 'lines' does not exist on type 'UpdatePurchaseOrderDto'.
+
+[7m226[0m     if (dto.lines && dto.lines.length > 0) {
+[7m   [0m [91m            ~~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m226[0m:[93m26[0m - [91merror[0m[90m TS2339: [0mProperty 'lines' does not exist on type 'UpdatePurchaseOrderDto'.
+
+[7m226[0m     if (dto.lines && dto.lines.length > 0) {
+[7m   [0m [91m                         ~~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m228[0m:[93m27[0m - [91merror[0m[90m TS2339: [0mProperty 'lines' does not exist on type 'UpdatePurchaseOrderDto'.
+
+[7m228[0m       const itemIds = dto.lines.map((l) => BigInt(l.itemId));
+[7m   [0m [91m                          ~~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m247[0m:[93m13[0m - [91merror[0m[90m TS2339: [0mProperty 'lines' does not exist on type 'UpdatePurchaseOrderDto'.
+
+[7m247[0m         dto.lines.map(async (line) => {
+[7m   [0m [91m            ~~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m264[0m:[93m15[0m - [91merror[0m[90m TS18047: [0m'user' is possibly 'null'.
+
+[7m264[0m               user.role.roleName !== RoleName.ADMIN &&
+[7m   [0m [91m              ~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m265[0m:[93m15[0m - [91merror[0m[90m TS18047: [0m'user' is possibly 'null'.
+
+[7m265[0m               user.role.roleName !== RoleName.MANAGER
+[7m   [0m [91m              ~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m274[0m:[93m13[0m - [91merror[0m[90m TS2322: [0mType 'bigint' is not assignable to type 'null'.
+
+[7m274[0m             overriddenBy = userId;
+[7m   [0m [91m            ~~~~~~~~~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m289[0m:[93m18[0m - [91merror[0m[90m TS18048: [0m'linesData' is possibly 'undefined'.
+
+[7m289[0m       subtotal = linesData.reduce((sum, l) => sum + Number(l.lineTotal), 0);
+[7m   [0m [91m                 ~~~~~~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m292[0m:[93m7[0m - [91merror[0m[90m TS2322: [0mType 'number' is not assignable to type 'undefined'.
+
+[7m292[0m       total = subtotal - Number(discount) + Number(tax);
+[7m   [0m [91m      ~~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m292[0m:[93m15[0m - [91merror[0m[90m TS18048: [0m'subtotal' is possibly 'undefined'.
+
+[7m292[0m       total = subtotal - Number(discount) + Number(tax);
+[7m   [0m [91m              ~~~~~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m299[0m:[93m25[0m - [91merror[0m[90m TS2339: [0mProperty 'supplierId' does not exist on type 'UpdatePurchaseOrderDto'.
+
+[7m299[0m         supplierId: dto.supplierId ? BigInt(dto.supplierId) : undefined,
+[7m   [0m [91m                        ~~~~~~~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m299[0m:[93m49[0m - [91merror[0m[90m TS2339: [0mProperty 'supplierId' does not exist on type 'UpdatePurchaseOrderDto'.
+
+[7m299[0m         supplierId: dto.supplierId ? BigInt(dto.supplierId) : undefined,
+[7m   [0m [91m                                                ~~~~~~~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m300[0m:[93m27[0m - [91merror[0m[90m TS2339: [0mProperty 'purchaseDate' does not exist on type 'UpdatePurchaseOrderDto'.
+
+[7m300[0m         purchaseDate: dto.purchaseDate ? new Date(dto.purchaseDate) : undefined,
+[7m   [0m [91m                          ~~~~~~~~~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m300[0m:[93m55[0m - [91merror[0m[90m TS2339: [0mProperty 'purchaseDate' does not exist on type 'UpdatePurchaseOrderDto'.
+
+[7m300[0m         purchaseDate: dto.purchaseDate ? new Date(dto.purchaseDate) : undefined,
+[7m   [0m [91m                                                      ~~~~~~~~~~~~[0m
+[96msrc/purchasing/purchasing.service.ts[0m:[93m306[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'updatedBy' does not exist in type '(Without<PurchaseOrderUpdateInput, PurchaseOrderUncheckedUpdateInput> & PurchaseOrderUncheckedUpdateInput) | (Without<...> & PurchaseOrderUpdateInput)'.
+
+[7m306[0m         updatedBy: userId,
+[7m   [0m [91m        ~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m21294[0m:[93m5[0m
+    [7m21294[0m     data: XOR<PurchaseOrderUpdateInput, PurchaseOrderUncheckedUpdateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: PurchaseOrderSelect<DefaultArgs> | null | undefined; include?: PurchaseOrderInclude<DefaultArgs> | null | undefined; data: (Without<...> & PurchaseOrderUncheckedUpdateInput) | (Without<...> & PurchaseOrderUpdateInput); where: PurchaseOrderWhereUniqueInput; }'
+[96msrc/purchasing/purchasing.service.ts[0m:[93m342[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'updatedBy' does not exist in type '(Without<PurchaseOrderUpdateInput, PurchaseOrderUncheckedUpdateInput> & PurchaseOrderUncheckedUpdateInput) | (Without<...> & PurchaseOrderUpdateInput)'.
+
+[7m342[0m         updatedBy: userId,
+[7m   [0m [91m        ~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m21294[0m:[93m5[0m
+    [7m21294[0m     data: XOR<PurchaseOrderUpdateInput, PurchaseOrderUncheckedUpdateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: PurchaseOrderSelect<DefaultArgs> | null | undefined; include?: PurchaseOrderInclude<DefaultArgs> | null | undefined; data: (Without<...> & PurchaseOrderUncheckedUpdateInput) | (Without<...> & PurchaseOrderUpdateInput); where: PurchaseOrderWhereUniqueInput; }'
+[96msrc/purchasing/purchasing.service.ts[0m:[93m410[0m:[93m15[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'purchaseId' does not exist in type 'Without<StockMovementCreateInput, StockMovementUncheckedCreateInput> & StockMovementUncheckedCreateInput'.
+
+[7m410[0m               purchaseId: purchase.purchaseId,
+[7m   [0m [91m              ~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m28619[0m:[93m5[0m
+    [7m28619[0m     data: XOR<StockMovementCreateInput, StockMovementUncheckedCreateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: StockMovementSelect<DefaultArgs> | null | undefined; include?: StockMovementInclude<DefaultArgs> | null | undefined; data: (Without<...> & StockMovementUncheckedCreateInput) | (Without<...> & StockMovementCreateInput); }'
+[96msrc/purchasing/purchasing.service.ts[0m:[93m445[0m:[93m11[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'receivedAt' does not exist in type '(Without<PurchaseOrderUpdateInput, PurchaseOrderUncheckedUpdateInput> & PurchaseOrderUncheckedUpdateInput) | (Without<...> & PurchaseOrderUpdateInput)'.
+
+[7m445[0m           receivedAt: new Date(),
+[7m   [0m [91m          ~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m21294[0m:[93m5[0m
+    [7m21294[0m     data: XOR<PurchaseOrderUpdateInput, PurchaseOrderUncheckedUpdateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: PurchaseOrderSelect<DefaultArgs> | null | undefined; include?: PurchaseOrderInclude<DefaultArgs> | null | undefined; data: (Without<...> & PurchaseOrderUncheckedUpdateInput) | (Without<...> & PurchaseOrderUpdateInput); where: PurchaseOrderWhereUniqueInput; }'
+[96msrc/purchasing/purchasing.service.ts[0m:[93m483[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'cancelledAt' does not exist in type '(Without<PurchaseOrderUpdateInput, PurchaseOrderUncheckedUpdateInput> & PurchaseOrderUncheckedUpdateInput) | (Without<...> & PurchaseOrderUpdateInput)'.
+
+[7m483[0m         cancelledAt: new Date(),
+[7m   [0m [91m        ~~~~~~~~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m21294[0m:[93m5[0m
+    [7m21294[0m     data: XOR<PurchaseOrderUpdateInput, PurchaseOrderUncheckedUpdateInput>
+    [7m     [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type '{ select?: PurchaseOrderSelect<DefaultArgs> | null | undefined; include?: PurchaseOrderInclude<DefaultArgs> | null | undefined; data: (Without<...> & PurchaseOrderUncheckedUpdateInput) | (Without<...> & PurchaseOrderUpdateInput); where: PurchaseOrderWhereUniqueInput; }'
+
+Found 32 error(s).
+

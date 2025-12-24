@@ -99,10 +99,14 @@ let AttendanceService = class AttendanceService {
         const where = {};
         if (query.userId)
             where.userId = BigInt(query.userId);
-        if (query.fromDate)
-            where.workDate = { ...where.workDate, gte: new Date(query.fromDate) };
-        if (query.toDate)
-            where.workDate = { ...where.workDate, lte: new Date(query.toDate) };
+        if (query.fromDate) {
+            const date = luxon_1.DateTime.fromISO(query.fromDate, { zone: 'Asia/Colombo' }).startOf('day').toJSDate();
+            where.workDate = { ...where.workDate, gte: date };
+        }
+        if (query.toDate) {
+            const date = luxon_1.DateTime.fromISO(query.toDate, { zone: 'Asia/Colombo' }).endOf('day').toJSDate();
+            where.workDate = { ...where.workDate, lte: date };
+        }
         const [records, total] = await Promise.all([
             this.prisma.attendanceDaily.findMany({
                 where, skip, take: limit,
@@ -261,10 +265,22 @@ let AttendanceService = class AttendanceService {
     }
     transformAttendance(attendance) {
         return {
-            ...attendance,
             attendanceId: attendance.attendanceId.toString(),
             userId: attendance.userId.toString(),
+            workDate: attendance.workDate,
+            timeIn: attendance.timeIn,
+            timeOut: attendance.timeOut,
+            systemHours: Number(attendance.systemHours),
+            systemOtHours: Number(attendance.systemOtHours),
+            manualOtHours: Number(attendance.manualOtHours),
+            remarks: attendance.remarks,
             recordedBy: attendance.recordedBy?.toString(),
+            createdAt: attendance.createdAt,
+            recorder: attendance.recorder ? {
+                userId: attendance.recorder.userId.toString(),
+                userCode: attendance.recorder.userCode,
+                fullName: attendance.recorder.fullName,
+            } : undefined,
             user: attendance.user ? {
                 userId: attendance.user.userId.toString(),
                 userCode: attendance.user.userCode,

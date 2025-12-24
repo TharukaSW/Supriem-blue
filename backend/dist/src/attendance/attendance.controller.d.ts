@@ -3,11 +3,99 @@ import { AttendanceInOutDto, UpdateManualOtDto, AttendanceQueryDto, CreateSalary
 export declare class AttendanceController {
     private readonly attendanceService;
     constructor(attendanceService: AttendanceService);
-    clockIn(dto: AttendanceInOutDto, user: any): Promise<any>;
-    clockOut(dto: AttendanceInOutDto, user: any): Promise<any>;
-    updateManualOt(id: string, dto: UpdateManualOtDto): Promise<any>;
+    clockIn(dto: AttendanceInOutDto, user: any): Promise<{
+        attendanceId: any;
+        userId: any;
+        workDate: any;
+        timeIn: any;
+        timeOut: any;
+        systemHours: number;
+        systemOtHours: number;
+        manualOtHours: number;
+        remarks: any;
+        recordedBy: any;
+        createdAt: any;
+        recorder: {
+            userId: any;
+            userCode: any;
+            fullName: any;
+        } | undefined;
+        user: {
+            userId: any;
+            userCode: any;
+            fullName: any;
+        } | undefined;
+    }>;
+    clockOut(dto: AttendanceInOutDto, user: any): Promise<{
+        attendanceId: any;
+        userId: any;
+        workDate: any;
+        timeIn: any;
+        timeOut: any;
+        systemHours: number;
+        systemOtHours: number;
+        manualOtHours: number;
+        remarks: any;
+        recordedBy: any;
+        createdAt: any;
+        recorder: {
+            userId: any;
+            userCode: any;
+            fullName: any;
+        } | undefined;
+        user: {
+            userId: any;
+            userCode: any;
+            fullName: any;
+        } | undefined;
+    }>;
+    updateManualOt(id: string, dto: UpdateManualOtDto): Promise<{
+        attendanceId: any;
+        userId: any;
+        workDate: any;
+        timeIn: any;
+        timeOut: any;
+        systemHours: number;
+        systemOtHours: number;
+        manualOtHours: number;
+        remarks: any;
+        recordedBy: any;
+        createdAt: any;
+        recorder: {
+            userId: any;
+            userCode: any;
+            fullName: any;
+        } | undefined;
+        user: {
+            userId: any;
+            userCode: any;
+            fullName: any;
+        } | undefined;
+    }>;
     findAll(query: AttendanceQueryDto): Promise<{
-        data: any[];
+        data: {
+            attendanceId: any;
+            userId: any;
+            workDate: any;
+            timeIn: any;
+            timeOut: any;
+            systemHours: number;
+            systemOtHours: number;
+            manualOtHours: number;
+            remarks: any;
+            recordedBy: any;
+            createdAt: any;
+            recorder: {
+                userId: any;
+                userCode: any;
+                fullName: any;
+            } | undefined;
+            user: {
+                userId: any;
+                userCode: any;
+                fullName: any;
+            } | undefined;
+        }[];
         meta: {
             total: number;
             page: number;
@@ -57,8 +145,8 @@ export declare class AttendanceController {
                 minSalary: import("@prisma/client/runtime/library").Decimal;
                 maxSalary: import("@prisma/client/runtime/library").Decimal;
             } | null;
-            nic: string | null;
             address: string | null;
+            nic: string | null;
             joinedDate: Date | null;
             designation: string | null;
             basicSalary: import("@prisma/client/runtime/library").Decimal;
@@ -97,8 +185,8 @@ export declare class AttendanceController {
             minSalary: import("@prisma/client/runtime/library").Decimal;
             maxSalary: import("@prisma/client/runtime/library").Decimal;
         } | null;
-        nic: string | null;
         address: string | null;
+        nic: string | null;
         joinedDate: Date | null;
         designation: string | null;
         basicSalary: import("@prisma/client/runtime/library").Decimal;

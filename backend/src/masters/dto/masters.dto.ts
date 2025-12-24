@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsBoolean, IsInt, IsEnum, IsNumber } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsInt, IsEnum, IsNumber, IsDateString, Min, IsNotEmpty } from 'class-validator';
 import { ItemType } from '@prisma/client';
 
 // Units
@@ -194,6 +194,18 @@ export class SupplierQueryDto {
     @ApiPropertyOptional()
     @IsOptional()
     isActive?: boolean;
+
+    @ApiPropertyOptional({ description: 'Include price lists' })
+    @IsOptional()
+    @IsBoolean()
+    includePrices?: boolean;
+}
+
+export class DeactivateSupplierDto {
+    @ApiPropertyOptional({ example: 'No longer in business' })
+    @IsOptional()
+    @IsString()
+    reason?: string;
 }
 
 // Customers
@@ -276,33 +288,54 @@ export class CustomerQueryDto {
     @ApiPropertyOptional()
     @IsOptional()
     isActive?: boolean;
+
+    @ApiPropertyOptional({ description: 'Include price lists' })
+    @IsOptional()
+    @IsBoolean()
+    includePrices?: boolean;
+}
+
+export class DeactivateCustomerDto {
+    @ApiPropertyOptional({ example: 'Closed permanently' })
+    @IsOptional()
+    @IsString()
+    reason?: string;
 }
 
 // Supplier Item Prices
 export class CreateSupplierItemPriceDto {
     @ApiProperty({ example: '1' })
-    @IsString()
-    supplierId: string;
-
-    @ApiProperty({ example: '1' })
+    @IsNotEmpty()
     @IsString()
     itemId: string;
 
-    @ApiProperty({ example: 25.50 })
+    @ApiProperty({ example: 25.50, description: 'Unit price must be greater than 0' })
     @IsNumber()
+    @Min(0.01)
     unitPrice: number;
 
-    @ApiPropertyOptional({ example: '2024-01-01' })
+    @ApiPropertyOptional({ example: '2024-01-01', description: 'Effective start date (YYYY-MM-DD)' })
     @IsOptional()
-    @IsString()
+    @IsDateString()
     effectiveFrom?: string;
+
+    @ApiPropertyOptional({ example: '2024-12-31', description: 'End date (YYYY-MM-DD)' })
+    @IsOptional()
+    @IsDateString()
+    endDate?: string;
 }
 
 export class UpdateSupplierItemPriceDto {
     @ApiPropertyOptional({ example: 25.50 })
     @IsOptional()
     @IsNumber()
+    @Min(0.01)
     unitPrice?: number;
+
+    @ApiPropertyOptional({ example: '2024-12-31' })
+    @IsOptional()
+    @IsDateString()
+    endDate?: string;
 
     @ApiPropertyOptional({ example: true })
     @IsOptional()
@@ -310,34 +343,91 @@ export class UpdateSupplierItemPriceDto {
     isActive?: boolean;
 }
 
+export class SupplierPriceQueryDto {
+    @ApiPropertyOptional({ description: 'Filter by item ID' })
+    @IsOptional()
+    @IsString()
+    itemId?: string;
+
+    @ApiPropertyOptional({ description: 'Show only active prices', default: false })
+    @IsOptional()
+    @IsBoolean()
+    activeOnly?: boolean;
+
+    @ApiPropertyOptional({ description: 'As of date for price retrieval (YYYY-MM-DD)' })
+    @IsOptional()
+    @IsDateString()
+    asOfDate?: string;
+}
+
+export class DeactivateSupplierPriceDto {
+    @ApiPropertyOptional({ example: '2024-12-31', description: 'End date to set (YYYY-MM-DD)' })
+    @IsOptional()
+    @IsDateString()
+    endDate?: string;
+}
+
 // Customer Item Prices
 export class CreateCustomerItemPriceDto {
     @ApiProperty({ example: '1' })
-    @IsString()
-    customerId: string;
-
-    @ApiProperty({ example: '1' })
+    @IsNotEmpty()
     @IsString()
     itemId: string;
 
-    @ApiProperty({ example: 35.00 })
+    @ApiProperty({ example: 35.00, description: 'Unit price must be greater than 0' })
     @IsNumber()
+    @Min(0.01)
     unitPrice: number;
 
-    @ApiPropertyOptional({ example: '2024-01-01' })
+    @ApiPropertyOptional({ example: '2024-01-01', description: 'Effective start date (YYYY-MM-DD)' })
     @IsOptional()
-    @IsString()
+    @IsDateString()
     effectiveFrom?: string;
+
+    @ApiPropertyOptional({ example: '2024-12-31', description: 'End date (YYYY-MM-DD)' })
+    @IsOptional()
+    @IsDateString()
+    endDate?: string;
 }
 
 export class UpdateCustomerItemPriceDto {
     @ApiPropertyOptional({ example: 35.00 })
     @IsOptional()
     @IsNumber()
+    @Min(0.01)
     unitPrice?: number;
+
+    @ApiPropertyOptional({ example: '2024-12-31' })
+    @IsOptional()
+    @IsDateString()
+    endDate?: string;
 
     @ApiPropertyOptional({ example: true })
     @IsOptional()
     @IsBoolean()
     isActive?: boolean;
+}
+
+export class CustomerPriceQueryDto {
+    @ApiPropertyOptional({ description: 'Filter by item ID' })
+    @IsOptional()
+    @IsString()
+    itemId?: string;
+
+    @ApiPropertyOptional({ description: 'Show only active prices', default: false })
+    @IsOptional()
+    @IsBoolean()
+    activeOnly?: boolean;
+
+    @ApiPropertyOptional({ description: 'As of date for price retrieval (YYYY-MM-DD)' })
+    @IsOptional()
+    @IsDateString()
+    asOfDate?: string;
+}
+
+export class DeactivateCustomerPriceDto {
+    @ApiPropertyOptional({ example: '2024-12-31', description: 'End date to set (YYYY-MM-DD)' })
+    @IsOptional()
+    @IsDateString()
+    endDate?: string;
 }
