@@ -25,8 +25,16 @@ export const routes: Routes = [
                 loadComponent: () => import('./users/user-form/user-form.component').then(m => m.UserFormComponent),
             },
             {
-                path: 'users/:id',
+                path: 'users/:id/profile',
+                loadComponent: () => import('./users/user-profile/user-profile.component').then(m => m.UserProfileComponent),
+            },
+            {
+                path: 'users/:id/edit',
                 loadComponent: () => import('./users/user-form/user-form.component').then(m => m.UserFormComponent),
+            },
+            {
+                path: 'users/:id',
+                loadComponent: () => import('./users/user-profile/user-profile.component').then(m => m.UserProfileComponent),
             },
             {
                 path: 'attendance',
@@ -41,8 +49,16 @@ export const routes: Routes = [
                 loadComponent: () => import('./masters/suppliers/suppliers-list.component').then(m => m.SuppliersListComponent),
             },
             {
+                path: 'suppliers/:id',
+                loadComponent: () => import('./masters/suppliers/supplier-detail.component').then(m => m.SupplierDetailComponent),
+            },
+            {
                 path: 'customers',
                 loadComponent: () => import('./masters/customers/customers-list.component').then(m => m.CustomersListComponent),
+            },
+            {
+                path: 'customers/:id',
+                loadComponent: () => import('./masters/customers/customer-detail.component').then(m => m.CustomerDetailComponent),
             },
             {
                 path: 'purchases',
@@ -61,12 +77,28 @@ export const routes: Routes = [
                 loadComponent: () => import('./sales/sales-form/sales-form.component').then(m => m.SalesFormComponent),
             },
             {
+                path: 'sales/:id',
+                loadComponent: () => import('./sales/sales-detail/sales-detail.component').then(m => m.SalesDetailComponent),
+            },
+            {
+                path: 'sales/:id/edit',
+                loadComponent: () => import('./sales/sales-form/sales-form.component').then(m => m.SalesFormComponent),
+            },
+            {
+                path: 'dispatches',
+                loadComponent: () => import('./sales/dispatch-list/dispatch-list.component').then(m => m.DispatchListComponent),
+            },
+            {
                 path: 'production',
                 loadComponent: () => import('./production/production-list/production-list.component').then(m => m.ProductionListComponent),
             },
             {
                 path: 'invoices',
                 loadComponent: () => import('./invoices/invoices-list/invoices-list.component').then(m => m.InvoicesListComponent),
+            },
+            {
+                path: 'invoices/:id',
+                loadComponent: () => import('./invoices/invoice-detail/invoice-detail.component').then(m => m.InvoiceDetailComponent),
             },
             {
                 path: 'expenses',

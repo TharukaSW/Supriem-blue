@@ -70,19 +70,17 @@ let ReportsService = class ReportsService {
         const dateFilter = this.getDateFilter(fromDate, toDate, 'productionDate');
         const productionDays = await this.prisma.productionDay.findMany({
             where: dateFilter ? { productionDate: dateFilter } : {},
-            include: { lines: { include: { item: true } } },
+            include: { finishedProduct: { include: { unit: true } } },
             orderBy: { productionDate: 'desc' },
         });
         const summary = {};
         let totalProduced = 0;
         let totalScrap = 0;
         for (const day of productionDays) {
-            for (const line of day.lines) {
-                const itemName = line.item.itemName;
-                summary[itemName] = (summary[itemName] || 0) + Number(line.qtyProduced);
-                totalProduced += Number(line.qtyProduced);
-                totalScrap += Number(line.scrapQty);
-            }
+            const itemName = day.finishedProduct.itemName;
+            summary[itemName] = (summary[itemName] || 0) + Number(day.quantity);
+            totalProduced += Number(day.quantity);
+            totalScrap += Number(day.scrapQuantity);
         }
         return {
             period: { fromDate, toDate },
@@ -90,11 +88,11 @@ let ReportsService = class ReportsService {
             byProduct: Object.entries(summary).map(([item, qty]) => ({ item, qty })),
             daily: productionDays.map(d => ({
                 date: d.productionDate,
-                lines: d.lines.map(l => ({
-                    item: l.item.itemName,
-                    produced: Number(l.qtyProduced),
-                    scrap: Number(l.scrapQty),
-                })),
+                product: d.finishedProduct.itemName,
+                unit: d.finishedProduct.unit?.unitName || '',
+                produced: Number(d.quantity),
+                scrap: Number(d.scrapQuantity),
+                notes: d.notes,
             })),
         };
     }

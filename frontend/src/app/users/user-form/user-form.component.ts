@@ -136,9 +136,14 @@ export class UserFormComponent implements OnInit {
             : this.api.post('users', this.form);
 
         req.subscribe({
-            next: () => {
+            next: (res: any) => {
                 this.snackBar.open('User saved successfully', 'Close', { duration: 3000 });
-                this.router.navigate(['/users']);
+                // Navigate to profile page if editing, otherwise to list
+                if (this.isEdit) {
+                    this.router.navigate(['/users', this.userId]);
+                } else {
+                    this.router.navigate(['/users', res.userId]);
+                }
             },
             error: (err) => {
                 this.saving.set(false);

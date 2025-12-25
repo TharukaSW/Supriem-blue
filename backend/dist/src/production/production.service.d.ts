@@ -14,6 +14,8 @@ export declare class ProductionService {
         };
     }>;
     findOne(id: bigint): Promise<any>;
-    update(id: bigint, dto: UpdateProductionDayDto): Promise<any>;
+    update(id: bigint, dto: UpdateProductionDayDto, userId: string): Promise<any>;
+    closeDay(id: bigint, userId: string): Promise<any>;
+    reopenDay(id: bigint, userId: string, reason: string): Promise<any>;
     private transform;
 }

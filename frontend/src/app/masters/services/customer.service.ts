@@ -42,6 +42,7 @@ export interface CreateCustomerDto {
     phone?: string;
     email?: string;
     address?: string;
+    products: CreateCustomerPriceDto[]; // Required field
 }
 
 export interface UpdateCustomerDto {

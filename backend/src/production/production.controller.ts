@@ -41,7 +41,23 @@ export class ProductionController {
     @Roles(RoleName.ADMIN, RoleName.MANAGER)
     @ApiOperation({ summary: 'Update production day' })
     @ApiParam({ name: 'id', type: 'string' })
-    update(@Param('id') id: string, @Body() dto: UpdateProductionDayDto) {
-        return this.productionService.update(BigInt(id), dto);
+    update(@Param('id') id: string, @Body() dto: UpdateProductionDayDto, @CurrentUser() user: any) {
+        return this.productionService.update(BigInt(id), dto, user.userId);
+    }
+
+    @Post(':id/close')
+    @Roles(RoleName.ADMIN, RoleName.MANAGER)
+    @ApiOperation({ summary: 'Close production day' })
+    @ApiParam({ name: 'id', type: 'string' })
+    closeDay(@Param('id') id: string, @CurrentUser() user: any) {
+        return this.productionService.closeDay(BigInt(id), user.userId);
+    }
+
+    @Post(':id/reopen')
+    @Roles(RoleName.ADMIN, RoleName.MANAGER)
+    @ApiOperation({ summary: 'Reopen production day' })
+    @ApiParam({ name: 'id', type: 'string' })
+    reopenDay(@Param('id') id: string, @Body('reason') reason: string, @CurrentUser() user: any) {
+        return this.productionService.reopenDay(BigInt(id), user.userId, reason);
     }
 }

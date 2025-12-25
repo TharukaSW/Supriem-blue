@@ -127,3 +127,38 @@ $accent: mat.m2-define-palette(mat.$m2-blue-palette);
     gap: 12px;
   }
 }
+
+// Print styles for reports
+@media print {
+  .page-header { margin-bottom: 10px; }
+  .filter-section,
+  .quick-buttons,
+  button,
+  mat-tab-header { display: none !important; }
+  
+  .report-content {
+    page-break-inside: avoid;
+  }
+  
+  .summary-cards {
+    page-break-inside: avoid;
+  }
+  
+  table {
+    page-break-inside: auto;
+  }
+  
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+  
+  @page {
+    margin: 1cm;
+  }
+  
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

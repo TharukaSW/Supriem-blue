@@ -77,11 +77,11 @@ export declare class ReportsController {
         }[];
         daily: {
             date: Date;
-            lines: {
-                item: string;
-                produced: number;
-                scrap: number;
-            }[];
+            product: string;
+            unit: string;
+            produced: number;
+            scrap: number;
+            notes: string | null;
         }[];
     }>;
     getStockReport(): Promise<{

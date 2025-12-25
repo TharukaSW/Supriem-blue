@@ -185,7 +185,7 @@ export class ItemsListComponent implements OnInit {
 
   addItem() {
     const dialogRef = this.dialog.open(ItemFormDialogComponent, {
-      width: '600px',
+      width: '850px',
       data: { mode: 'create' }
     });
 
@@ -198,7 +198,7 @@ export class ItemsListComponent implements OnInit {
 
   editItem(item: Item) {
     const dialogRef = this.dialog.open(ItemFormDialogComponent, {
-      width: '600px',
+      width: '800px',
       data: { mode: 'edit', item }
     });
 

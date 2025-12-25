@@ -75,10 +75,19 @@ export class MastersService {
     async createItem(dto: CreateItemDto) {
         const existing = await this.prisma.item.findUnique({ where: { itemCode: dto.itemCode } });
         if (existing) throw new ConflictException('Item code already exists');
-        return this.prisma.item.create({
-            data: dto,
-            include: { category: true, unit: true },
-        });
+
+        try {
+            return this.prisma.item.create({
+                data: dto,
+                include: { category: true, unit: true },
+            });
+        } catch (error: any) {
+            // Handle Prisma unique constraint error for item_name + item_type
+            if (error.code === 'P2002' && error.meta?.target?.includes('item_name')) {
+                throw new ConflictException(`An item with the name "${dto.itemName}" and type "${dto.itemType}" already exists`);
+            }
+            throw error;
+        }
     }
 
     async findAllItems(query: ItemQueryDto) {
@@ -147,12 +156,31 @@ export class MastersService {
     async createSupplier(dto: CreateSupplierDto, userId: string) {
         const existing = await this.prisma.supplier.findUnique({ where: { supplierCode: dto.supplierCode } });
         if (existing) throw new ConflictException('Supplier code already exists');
-        
-        const supplier = await this.prisma.supplier.create({ 
+
+        const { items, ...supplierData } = dto;
+
+        const supplier = await this.prisma.supplier.create({
             data: {
-                ...dto,
+                ...supplierData,
                 createdBy: BigInt(userId),
                 updatedBy: BigInt(userId),
+                ...(items && items.length > 0 ? {
+                    itemPrices: {
+                        create: items.map(item => ({
+                            itemId: BigInt(item.itemId),
+                            unitPrice: item.unitPrice,
+                            effectiveFrom: item.effectiveFrom ? new Date(item.effectiveFrom) : new Date(),
+                            endDate: item.endDate ? new Date(item.endDate) : null,
+                            createdBy: BigInt(userId),
+                            updatedBy: BigInt(userId),
+                        }))
+                    }
+                } : {})
+            },
+            include: {
+                itemPrices: {
+                    include: { item: true }
+                }
             }
         });
         return this.transformSupplier(supplier);
@@ -184,12 +212,12 @@ export class MastersService {
         }
 
         const [suppliers, total] = await Promise.all([
-            this.prisma.supplier.findMany({ 
-                where, 
-                skip, 
-                take: limit, 
+            this.prisma.supplier.findMany({
+                where,
+                skip,
+                take: limit,
                 include,
-                orderBy: { createdAt: 'desc' } 
+                orderBy: { createdAt: 'desc' }
             }),
             this.prisma.supplier.count({ where }),
         ]);
@@ -209,7 +237,7 @@ export class MastersService {
             };
         }
 
-        const supplier = await this.prisma.supplier.findUnique({ 
+        const supplier = await this.prisma.supplier.findUnique({
             where: { supplierId: id },
             include,
         });
@@ -219,8 +247,8 @@ export class MastersService {
 
     async updateSupplier(id: bigint, dto: UpdateSupplierDto, userId: string) {
         await this.findOneSupplier(id);
-        const supplier = await this.prisma.supplier.update({ 
-            where: { supplierId: id }, 
+        const supplier = await this.prisma.supplier.update({
+            where: { supplierId: id },
             data: {
                 ...dto,
                 updatedBy: BigInt(userId),
@@ -231,19 +259,19 @@ export class MastersService {
 
     async deactivateSupplier(id: bigint, dto: DeactivateSupplierDto, userId: string) {
         await this.findOneSupplier(id);
-        const supplier = await this.prisma.supplier.update({ 
-            where: { supplierId: id }, 
-            data: { 
+        const supplier = await this.prisma.supplier.update({
+            where: { supplierId: id },
+            data: {
                 isActive: false,
                 deactivatedAt: new Date(),
                 deactivatedBy: BigInt(userId),
                 updatedBy: BigInt(userId),
             }
         });
-        return { 
-            message: 'Supplier deactivated successfully', 
+        return {
+            message: 'Supplier deactivated successfully',
             reason: dto.reason,
-            supplier: this.transformSupplier(supplier) 
+            supplier: this.transformSupplier(supplier)
         };
     }
 
@@ -254,18 +282,18 @@ export class MastersService {
     }
 
     private transformSupplier(supplier: any) {
-        const transformed: any = { 
-            ...supplier, 
+        const transformed: any = {
+            ...supplier,
             supplierId: supplier.supplierId.toString(),
             createdBy: supplier.createdBy?.toString(),
             updatedBy: supplier.updatedBy?.toString(),
             deactivatedBy: supplier.deactivatedBy?.toString(),
         };
-        
+
         if (supplier.itemPrices) {
             transformed.itemPrices = supplier.itemPrices.map((p: any) => this.transformSupplierPrice(p));
         }
-        
+
         return transformed;
     }
 
@@ -273,13 +301,31 @@ export class MastersService {
     async createCustomer(dto: CreateCustomerDto, userId: string) {
         const existing = await this.prisma.customer.findUnique({ where: { customerCode: dto.customerCode } });
         if (existing) throw new ConflictException('Customer code already exists');
-        
-        const customer = await this.prisma.customer.create({ 
+
+        const { products, ...customerData } = dto;
+
+        const customer = await this.prisma.customer.create({
             data: {
-                ...dto,
+                ...customerData,
                 createdBy: BigInt(userId),
                 updatedBy: BigInt(userId),
-            }
+                itemPrices: {
+                    create: products.map(product => ({
+                        itemId: BigInt(product.itemId),
+                        unitPrice: product.unitPrice,
+                        effectiveFrom: product.effectiveFrom ? new Date(product.effectiveFrom) : new Date(),
+                        endDate: product.endDate ? new Date(product.endDate) : null,
+                        isActive: true,
+                        createdBy: BigInt(userId),
+                        updatedBy: BigInt(userId),
+                    })),
+                },
+            },
+            include: {
+                itemPrices: {
+                    include: { item: true },
+                },
+            },
         });
         return this.transformCustomer(customer);
     }
@@ -310,12 +356,12 @@ export class MastersService {
         }
 
         const [customers, total] = await Promise.all([
-            this.prisma.customer.findMany({ 
-                where, 
-                skip, 
-                take: limit, 
+            this.prisma.customer.findMany({
+                where,
+                skip,
+                take: limit,
                 include,
-                orderBy: { createdAt: 'desc' } 
+                orderBy: { createdAt: 'desc' }
             }),
             this.prisma.customer.count({ where }),
         ]);
@@ -335,7 +381,7 @@ export class MastersService {
             };
         }
 
-        const customer = await this.prisma.customer.findUnique({ 
+        const customer = await this.prisma.customer.findUnique({
             where: { customerId: id },
             include,
         });
@@ -345,8 +391,8 @@ export class MastersService {
 
     async updateCustomer(id: bigint, dto: UpdateCustomerDto, userId: string) {
         await this.findOneCustomer(id);
-        const customer = await this.prisma.customer.update({ 
-            where: { customerId: id }, 
+        const customer = await this.prisma.customer.update({
+            where: { customerId: id },
             data: {
                 ...dto,
                 updatedBy: BigInt(userId),
@@ -357,19 +403,19 @@ export class MastersService {
 
     async deactivateCustomer(id: bigint, dto: DeactivateCustomerDto, userId: string) {
         await this.findOneCustomer(id);
-        const customer = await this.prisma.customer.update({ 
-            where: { customerId: id }, 
-            data: { 
+        const customer = await this.prisma.customer.update({
+            where: { customerId: id },
+            data: {
                 isActive: false,
                 deactivatedAt: new Date(),
                 deactivatedBy: BigInt(userId),
                 updatedBy: BigInt(userId),
             }
         });
-        return { 
-            message: 'Customer deactivated successfully', 
+        return {
+            message: 'Customer deactivated successfully',
             reason: dto.reason,
-            customer: this.transformCustomer(customer) 
+            customer: this.transformCustomer(customer)
         };
     }
 
@@ -380,18 +426,18 @@ export class MastersService {
     }
 
     private transformCustomer(customer: any) {
-        const transformed: any = { 
-            ...customer, 
+        const transformed: any = {
+            ...customer,
             customerId: customer.customerId.toString(),
             createdBy: customer.createdBy?.toString(),
             updatedBy: customer.updatedBy?.toString(),
             deactivatedBy: customer.deactivatedBy?.toString(),
         };
-        
+
         if (customer.itemPrices) {
             transformed.itemPrices = customer.itemPrices.map((p: any) => this.transformCustomerPrice(p));
         }
-        
+
         return transformed;
     }
 
@@ -426,7 +472,7 @@ export class MastersService {
 
     async findSupplierItemPrices(supplierId: bigint, query: SupplierPriceQueryDto) {
         const where: any = { supplierId };
-        
+
         if (query.itemId) {
             where.itemId = BigInt(query.itemId);
         }
@@ -449,7 +495,7 @@ export class MastersService {
                 { createdAt: 'desc' },
             ],
         });
-        
+
         return prices.map(p => this.transformSupplierPrice(p));
     }
 
@@ -608,7 +654,7 @@ export class MastersService {
 
     async findCustomerItemPrices(customerId: bigint, query: CustomerPriceQueryDto) {
         const where: any = { customerId };
-        
+
         if (query.itemId) {
             where.itemId = BigInt(query.itemId);
         }
@@ -631,7 +677,7 @@ export class MastersService {
                 { createdAt: 'desc' },
             ],
         });
-        
+
         return prices.map(p => this.transformCustomerPrice(p));
     }
 

@@ -33,62 +33,82 @@ import { ConfirmDialogComponent } from '../../core/components/confirm-dialog.com
     template: `
         <div class="page-container">
             @if (supplier()) {
-                <div class="page-header">
+                <div class="profile-header">
+                    <button mat-icon-button (click)="goBack()" class="back-button">
+                        <mat-icon>arrow_back</mat-icon>
+                    </button>
                     <div class="header-content">
-                        <button mat-icon-button (click)="goBack()">
-                            <mat-icon>arrow_back</mat-icon>
-                        </button>
-                        <div>
+                        <div class="supplier-avatar">
+                            <mat-icon>store</mat-icon>
+                        </div>
+                        <div class="header-info">
                             <h1>{{ supplier()!.supplierName }}</h1>
-                            <p>{{ supplier()!.supplierCode }}</p>
+                            <p class="supplier-code">{{ supplier()!.supplierCode }}</p>
+                            <mat-chip [class.active]="supplier()!.isActive" [class.inactive]="!supplier()!.isActive">
+                                <mat-icon>{{ supplier()!.isActive ? 'check_circle' : 'cancel' }}</mat-icon>
+                                {{ supplier()!.isActive ? 'Active' : 'Inactive' }}
+                            </mat-chip>
                         </div>
                     </div>
                     <div class="header-actions">
-                        <button mat-raised-button (click)="editSupplier()">
+                        <button mat-raised-button color="primary" (click)="editSupplier()">
                             <mat-icon>edit</mat-icon>
-                            Edit
+                            Edit Supplier
                         </button>
                     </div>
                 </div>
 
-                <mat-tab-group>
-                    <mat-tab label="Information">
+                <mat-tab-group class="profile-tabs">
+                    <mat-tab label="Supplier Information">
                         <div class="tab-content">
-                            <mat-card>
+                            <mat-card class="info-card">
                                 <mat-card-header>
-                                    <mat-card-title>Supplier Details</mat-card-title>
+                                    <mat-card-title>
+                                        <mat-icon>business</mat-icon>
+                                        Business Details
+                                    </mat-card-title>
                                 </mat-card-header>
                                 <mat-card-content>
                                     <div class="info-grid">
                                         <div class="info-item">
-                                            <label>Code:</label>
-                                            <span>{{ supplier()!.supplierCode }}</span>
+                                            <label>Supplier Code</label>
+                                            <p>{{ supplier()!.supplierCode }}</p>
                                         </div>
                                         <div class="info-item">
-                                            <label>Name:</label>
-                                            <span>{{ supplier()!.supplierName }}</span>
+                                            <label>Supplier Name</label>
+                                            <p>{{ supplier()!.supplierName }}</p>
                                         </div>
                                         <div class="info-item">
-                                            <label>Contact Person:</label>
-                                            <span>{{ supplier()!.contactName || '-' }}</span>
+                                            <label>Contact Person</label>
+                                            <p>{{ supplier()!.contactName || '-' }}</p>
                                         </div>
                                         <div class="info-item">
-                                            <label>Phone:</label>
-                                            <span>{{ supplier()!.phone || '-' }}</span>
+                                            <label>Phone</label>
+                                            <p>{{ supplier()!.phone || '-' }}</p>
                                         </div>
                                         <div class="info-item">
-                                            <label>Email:</label>
-                                            <span>{{ supplier()!.email || '-' }}</span>
+                                            <label>Email</label>
+                                            <p>{{ supplier()!.email || '-' }}</p>
                                         </div>
                                         <div class="info-item">
-                                            <label>Status:</label>
-                                            <mat-chip [class.active]="supplier()!.isActive" [class.inactive]="!supplier()!.isActive">
-                                                {{ supplier()!.isActive ? 'Active' : 'Inactive' }}
-                                            </mat-chip>
+                                            <label>Status</label>
+                                            <p>
+                                                <mat-chip [class.status-active]="supplier()!.isActive" [class.status-inactive]="!supplier()!.isActive">
+                                                    {{ supplier()!.isActive ? 'Active' : 'Inactive' }}
+                                                </mat-chip>
+                                            </p>
                                         </div>
                                         <div class="info-item full-width">
-                                            <label>Address:</label>
-                                            <span>{{ supplier()!.address || '-' }}</span>
+                                            <label>Address</label>
+                                            <p>{{ supplier()!.address || '-' }}</p>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Created At</label>
+                                            <p>{{ supplier()!.createdAt | date: 'medium' }}</p>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Last Updated</label>
+                                            <p>{{ supplier()!.updatedAt | date: 'medium' }}</p>
                                         </div>
                                     </div>
                                 </mat-card-content>
@@ -96,89 +116,93 @@ import { ConfirmDialogComponent } from '../../core/components/confirm-dialog.com
                         </div>
                     </mat-tab>
 
-                    <mat-tab label="Price List">
+                    <mat-tab label="Items & Prices">
                         <div class="tab-content">
-                            <div class="tab-header">
-                                <h2>Item Prices</h2>
-                                <button mat-raised-button color="primary" (click)="addPrice()">
-                                    <mat-icon>add</mat-icon>
-                                    Add Price
-                                </button>
-                            </div>
-
-                            <table mat-table [dataSource]="prices()" class="prices-table">
-                                <ng-container matColumnDef="item">
-                                    <th mat-header-cell *matHeaderCellDef>Item</th>
-                                    <td mat-cell *matCellDef="let price">
-                                        <div>
-                                            <strong>{{ price.item?.itemCode }}</strong>
-                                            <div class="text-muted">{{ price.item?.itemName }}</div>
-                                        </div>
-                                    </td>
-                                </ng-container>
-
-                                <ng-container matColumnDef="unitPrice">
-                                    <th mat-header-cell *matHeaderCellDef>Unit Price</th>
-                                    <td mat-cell *matCellDef="let price">
-                                        LKR {{ price.unitPrice | number:'1.2-2' }}
-                                        @if (price.item?.unit) {
-                                            <span class="unit-text">/ {{ price.item.unit.symbol }}</span>
-                                        }
-                                    </td>
-                                </ng-container>
-
-                                <ng-container matColumnDef="effectiveFrom">
-                                    <th mat-header-cell *matHeaderCellDef>Effective From</th>
-                                    <td mat-cell *matCellDef="let price">
-                                        {{ price.effectiveFrom | date:'mediumDate' }}
-                                    </td>
-                                </ng-container>
-
-                                <ng-container matColumnDef="endDate">
-                                    <th mat-header-cell *matHeaderCellDef>End Date</th>
-                                    <td mat-cell *matCellDef="let price">
-                                        {{ price.endDate ? (price.endDate | date:'mediumDate') : 'Ongoing' }}
-                                    </td>
-                                </ng-container>
-
-                                <ng-container matColumnDef="status">
-                                    <th mat-header-cell *matHeaderCellDef>Status</th>
-                                    <td mat-cell *matCellDef="let price">
-                                        <mat-chip [class.active]="price.isActive" [class.inactive]="!price.isActive">
-                                            {{ price.isActive ? 'Active' : 'Inactive' }}
-                                        </mat-chip>
-                                    </td>
-                                </ng-container>
-
-                                <ng-container matColumnDef="actions">
-                                    <th mat-header-cell *matHeaderCellDef>Actions</th>
-                                    <td mat-cell *matCellDef="let price">
-                                        <button mat-icon-button (click)="editPrice(price)" matTooltip="Edit Price">
-                                            <mat-icon>edit</mat-icon>
-                                        </button>
-                                        <button mat-icon-button 
-                                                *ngIf="price.isActive"
-                                                (click)="deactivatePrice(price)" 
-                                                matTooltip="Deactivate"
-                                                color="warn">
-                                            <mat-icon>block</mat-icon>
-                                        </button>
-                                    </td>
-                                </ng-container>
-
-                                <tr mat-header-row *matHeaderRowDef="priceColumns"></tr>
-                                <tr mat-row *matRowDef="let row; columns: priceColumns;"></tr>
-                            </table>
-
-                            @if (prices().length === 0) {
-                                <div class="no-data">
-                                    <mat-icon>attach_money</mat-icon>
-                                    <p>No prices defined yet</p>
+                            <mat-card class="info-card">
+                                <mat-card-header>
+                                    <mat-card-title>
+                                        <mat-icon>inventory_2</mat-icon>
+                                        Item Price List
+                                    </mat-card-title>
                                     <button mat-raised-button color="primary" (click)="addPrice()">
-                                        Add First Price
+                                        <mat-icon>add</mat-icon>
+                                        Add Item Price
                                     </button>
-                                </div>
-                            }
+                                </mat-card-header>
+                                <mat-card-content>
+                                    @if (prices().length > 0) {
+                                        <table mat-table [dataSource]="prices()" class="prices-table">
+                                            <ng-container matColumnDef="item">
+                                                <th mat-header-cell *matHeaderCellDef>Item</th>
+                                                <td mat-cell *matCellDef="let price">
+                                                    <div class="item-info">
+                                                        <strong>{{ price.item?.itemCode }}</strong>
+                                                        <span class="item-name">{{ price.item?.itemName }}</span>
+                                                    </div>
+                                                </td>
+                                            </ng-container>
+
+                                            <ng-container matColumnDef="unitPrice">
+                                                <th mat-header-cell *matHeaderCellDef>Unit Price</th>
+                                                <td mat-cell *matCellDef="let price">
+                                                    <span class="price-amount">LKR {{ price.unitPrice | number:'1.2-2' }}</span>
+                                                    @if (price.item?.unit) {
+                                                        <span class="unit-text">/ {{ price.item.unit.symbol }}</span>
+                                                    }
+                                                </td>
+                                            </ng-container>
+
+                                            <ng-container matColumnDef="effectiveFrom">
+                                                <th mat-header-cell *matHeaderCellDef>Effective From</th>
+                                                <td mat-cell *matCellDef="let price">
+                                                    {{ price.effectiveFrom | date:'mediumDate' }}
+                                                </td>
+                                            </ng-container>
+
+                                            <ng-container matColumnDef="endDate">
+                                                <th mat-header-cell *matHeaderCellDef>End Date</th>
+                                                <td mat-cell *matCellDef="let price">
+                                                    {{ price.endDate ? (price.endDate | date:'mediumDate') : 'Ongoing' }}
+                                                </td>
+                                            </ng-container>
+
+                                            <ng-container matColumnDef="status">
+                                                <th mat-header-cell *matHeaderCellDef>Status</th>
+                                                <td mat-cell *matCellDef="let price">
+                                                    <mat-chip [class.status-active]="price.isActive" [class.status-inactive]="!price.isActive">
+                                                        {{ price.isActive ? 'Active' : 'Inactive' }}
+                                                    </mat-chip>
+                                                </td>
+                                            </ng-container>
+
+                                            <ng-container matColumnDef="actions">
+                                                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                                                <td mat-cell *matCellDef="let price">
+                                                    <button mat-icon-button matTooltip="Edit Price" (click)="editPrice(price)">
+                                                        <mat-icon>edit</mat-icon>
+                                                    </button>
+                                                    <button mat-icon-button matTooltip="Deactivate" color="warn" 
+                                                            (click)="deactivatePrice(price)" [disabled]="!price.isActive">
+                                                        <mat-icon>block</mat-icon>
+                                                    </button>
+                                                </td>
+                                            </ng-container>
+
+                                            <tr mat-header-row *matHeaderRowDef="priceColumns"></tr>
+                                            <tr mat-row *matRowDef="let row; columns: priceColumns;"></tr>
+                                        </table>
+                                    } @else {
+                                        <div class="no-data">
+                                            <mat-icon>inventory_2</mat-icon>
+                                            <p>No item prices available</p>
+                                            <button mat-raised-button color="primary" (click)="addPrice()">
+                                                <mat-icon>add</mat-icon>
+                                                Add First Price
+                                            </button>
+                                        </div>
+                                    }
+                                </mat-card-content>
+                            </mat-card>
                         </div>
                     </mat-tab>
                 </mat-tab-group>
@@ -192,27 +216,68 @@ import { ConfirmDialogComponent } from '../../core/components/confirm-dialog.com
             margin: 0 auto;
         }
 
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 32px;
+            color: white;
             margin-bottom: 24px;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-button {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            color: white;
         }
 
         .header-content {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 24px;
+            margin-bottom: 16px;
         }
 
-        .header-content h1 {
-            margin: 0;
-            font-size: 28px;
+        .supplier-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .header-content p {
-            margin: 4px 0 0 0;
-            color: #666;
+        .supplier-avatar mat-icon {
+            font-size: 60px;
+            width: 60px;
+            height: 60px;
+            color: white;
+        }
+
+        .header-info h1 {
+            margin: 0 0 8px 0;
+            font-size: 32px;
+            font-weight: 600;
+        }
+
+        .supplier-code {
+            margin: 0 0 12px 0;
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .header-info mat-chip {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: 500;
+        }
+
+        .header-info mat-chip mat-icon {
+            color: white;
+            margin-right: 4px;
         }
 
         .header-actions {
@@ -220,32 +285,51 @@ import { ConfirmDialogComponent } from '../../core/components/confirm-dialog.com
             gap: 12px;
         }
 
+        .header-actions button {
+            background: white;
+            color: #667eea;
+        }
+
+        .profile-tabs {
+            margin-top: 24px;
+        }
+
         .tab-content {
             padding: 24px 0;
         }
 
-        .tab-header {
+        .info-card {
+            margin-bottom: 24px;
+        }
+
+        .info-card mat-card-header {
+            margin-bottom: 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
         }
 
-        .tab-header h2 {
-            margin: 0;
+        .info-card mat-card-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 20px;
+            color: rgba(0, 0, 0, 0.87);
+        }
+
+        .info-card mat-card-title mat-icon {
+            color: #667eea;
         }
 
         .info-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 24px;
-            margin-top: 16px;
         }
 
         .info-item {
             display: flex;
             flex-direction: column;
-            gap: 4px;
         }
 
         .info-item.full-width {
@@ -253,37 +337,56 @@ import { ConfirmDialogComponent } from '../../core/components/confirm-dialog.com
         }
 
         .info-item label {
+            font-size: 12px;
             font-weight: 500;
-            color: #666;
-            font-size: 0.9em;
+            color: rgba(0, 0, 0, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .info-item p {
+            font-size: 16px;
+            color: rgba(0, 0, 0, 0.87);
+            margin: 0;
         }
 
         .prices-table {
             width: 100%;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 16px;
         }
 
-        .text-muted {
-            color: #666;
-            font-size: 0.9em;
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .item-name {
+            font-size: 13px;
+            color: rgba(0, 0, 0, 0.6);
+        }
+
+        .price-amount {
+            font-size: 16px;
+            font-weight: 600;
+            color: #4caf50;
         }
 
         .unit-text {
-            color: #666;
-            font-size: 0.9em;
+            font-size: 13px;
+            color: rgba(0, 0, 0, 0.6);
+            margin-left: 4px;
         }
 
-        mat-chip.active {
-            background-color: #4caf50;
-            color: white;
+        .status-active {
+            background: #4caf50 !important;
+            color: white !important;
         }
 
-        mat-chip.inactive {
-            background-color: #f44336;
-            color: white;
+        .status-inactive {
+            background: #f44336 !important;
+            color: white !important;
         }
 
         .no-data {
@@ -292,14 +395,39 @@ import { ConfirmDialogComponent } from '../../core/components/confirm-dialog.com
             align-items: center;
             justify-content: center;
             padding: 60px 20px;
-            color: #999;
+            gap: 16px;
         }
 
         .no-data mat-icon {
             font-size: 64px;
             width: 64px;
             height: 64px;
-            margin-bottom: 16px;
+            color: rgba(0, 0, 0, 0.26);
+        }
+
+        .no-data p {
+            color: rgba(0, 0, 0, 0.54);
+            font-size: 16px;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .page-container {
+                padding: 16px;
+            }
+
+            .profile-header {
+                padding: 24px 16px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
         }
     `]
 })
@@ -354,7 +482,6 @@ export class SupplierDetailComponent implements OnInit {
 
     editSupplier() {
         const dialogRef = this.dialog.open(SupplierFormDialogComponent, {
-            width: '600px',
             data: { mode: 'edit', supplier: this.supplier() }
         });
 

@@ -260,7 +260,6 @@ export class SuppliersListComponent implements OnInit {
 
     addSupplier() {
         const dialogRef = this.dialog.open(SupplierFormDialogComponent, {
-            width: '600px',
             data: { mode: 'create' }
         });
 
@@ -277,7 +276,6 @@ export class SuppliersListComponent implements OnInit {
 
     editSupplier(supplier: Supplier) {
         const dialogRef = this.dialog.open(SupplierFormDialogComponent, {
-            width: '600px',
             data: { mode: 'edit', supplier }
         });
 

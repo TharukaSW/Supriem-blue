@@ -9,6 +9,7 @@ export interface Item {
     itemType: 'RAW' | 'PRODUCT' | 'SERVICE';
     categoryId?: number;
     unitId?: number;
+    sellingPrice?: number;
     isActive: boolean;
     createdAt: string;
     updatedAt: string;
@@ -44,6 +45,10 @@ export class ItemService {
     }
 
     getProducts(): Observable<{ data: Item[]; meta: any }> {
+        return this.api.get(this.endpoint, { itemType: 'PRODUCT', isActive: true, limit: 1000 });
+    }
+
+    getFinishedGoods(): Observable<{ data: Item[]; meta: any }> {
         return this.api.get(this.endpoint, { itemType: 'PRODUCT', isActive: true, limit: 1000 });
     }
 

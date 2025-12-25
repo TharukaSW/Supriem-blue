@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsBoolean, IsInt, IsEnum, IsNumber, IsDateString, Min, IsNotEmpty } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsInt, IsEnum, IsNumber, IsDateString, Min, IsNotEmpty, IsArray, ValidateNested, ArrayMinSize } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ItemType } from '@prisma/client';
 
 // Units
@@ -114,6 +115,29 @@ export class ItemQueryDto {
     isActive?: boolean;
 }
 
+// Supplier Item Prices - Moved here to be used in CreateSupplierDto
+export class CreateSupplierItemPriceDto {
+    @ApiProperty({ example: '1' })
+    @IsNotEmpty()
+    @IsString()
+    itemId: string;
+
+    @ApiProperty({ example: 25.50, description: 'Unit price must be greater than 0' })
+    @IsNumber()
+    @Min(0.01)
+    unitPrice: number;
+
+    @ApiPropertyOptional({ example: '2024-01-01', description: 'Effective start date (YYYY-MM-DD)' })
+    @IsOptional()
+    @IsDateString()
+    effectiveFrom?: string;
+
+    @ApiPropertyOptional({ example: '2024-12-31', description: 'End date (YYYY-MM-DD)' })
+    @IsOptional()
+    @IsDateString()
+    endDate?: string;
+}
+
 // Suppliers
 export class CreateSupplierDto {
     @ApiProperty({ example: 'SUP001' })
@@ -143,6 +167,16 @@ export class CreateSupplierDto {
     @IsOptional()
     @IsString()
     address?: string;
+
+    @ApiProperty({ 
+        type: [CreateSupplierItemPriceDto],
+        description: 'Array of item prices to create with the supplier (minimum 1 required)'
+    })
+    @IsArray()
+    @ArrayMinSize(1, { message: 'At least one item is required' })
+    @ValidateNested({ each: true })
+    @Type(() => CreateSupplierItemPriceDto)
+    items: CreateSupplierItemPriceDto[];
 }
 
 export class UpdateSupplierDto {
@@ -208,6 +242,29 @@ export class DeactivateSupplierDto {
     reason?: string;
 }
 
+// Customer Item Prices - Moved here to be used in CreateCustomerDto
+export class CreateCustomerItemPriceDto {
+    @ApiProperty({ example: '1' })
+    @IsNotEmpty()
+    @IsString()
+    itemId: string;
+
+    @ApiProperty({ example: 35.00, description: 'Unit price must be greater than 0' })
+    @IsNumber()
+    @Min(0.01)
+    unitPrice: number;
+
+    @ApiPropertyOptional({ example: '2024-01-01', description: 'Effective start date (YYYY-MM-DD)' })
+    @IsOptional()
+    @IsDateString()
+    effectiveFrom?: string;
+
+    @ApiPropertyOptional({ example: '2024-12-31', description: 'End date (YYYY-MM-DD)' })
+    @IsOptional()
+    @IsDateString()
+    endDate?: string;
+}
+
 // Customers
 export class CreateCustomerDto {
     @ApiProperty({ example: 'CUS001' })
@@ -237,6 +294,16 @@ export class CreateCustomerDto {
     @IsOptional()
     @IsString()
     address?: string;
+
+    @ApiProperty({ 
+        type: [CreateCustomerItemPriceDto],
+        description: 'Array of product prices to create with the customer (minimum 1 required)'
+    })
+    @IsArray()
+    @ArrayMinSize(1, { message: 'At least one product is required' })
+    @ValidateNested({ each: true })
+    @Type(() => CreateCustomerItemPriceDto)
+    products: CreateCustomerItemPriceDto[];
 }
 
 export class UpdateCustomerDto {
@@ -302,29 +369,6 @@ export class DeactivateCustomerDto {
     reason?: string;
 }
 
-// Supplier Item Prices
-export class CreateSupplierItemPriceDto {
-    @ApiProperty({ example: '1' })
-    @IsNotEmpty()
-    @IsString()
-    itemId: string;
-
-    @ApiProperty({ example: 25.50, description: 'Unit price must be greater than 0' })
-    @IsNumber()
-    @Min(0.01)
-    unitPrice: number;
-
-    @ApiPropertyOptional({ example: '2024-01-01', description: 'Effective start date (YYYY-MM-DD)' })
-    @IsOptional()
-    @IsDateString()
-    effectiveFrom?: string;
-
-    @ApiPropertyOptional({ example: '2024-12-31', description: 'End date (YYYY-MM-DD)' })
-    @IsOptional()
-    @IsDateString()
-    endDate?: string;
-}
-
 export class UpdateSupplierItemPriceDto {
     @ApiPropertyOptional({ example: 25.50 })
     @IsOptional()
@@ -367,29 +411,7 @@ export class DeactivateSupplierPriceDto {
     endDate?: string;
 }
 
-// Customer Item Prices
-export class CreateCustomerItemPriceDto {
-    @ApiProperty({ example: '1' })
-    @IsNotEmpty()
-    @IsString()
-    itemId: string;
-
-    @ApiProperty({ example: 35.00, description: 'Unit price must be greater than 0' })
-    @IsNumber()
-    @Min(0.01)
-    unitPrice: number;
-
-    @ApiPropertyOptional({ example: '2024-01-01', description: 'Effective start date (YYYY-MM-DD)' })
-    @IsOptional()
-    @IsDateString()
-    effectiveFrom?: string;
-
-    @ApiPropertyOptional({ example: '2024-12-31', description: 'End date (YYYY-MM-DD)' })
-    @IsOptional()
-    @IsDateString()
-    endDate?: string;
-}
-
+// Customer Item Prices Update
 export class UpdateCustomerItemPriceDto {
     @ApiPropertyOptional({ example: 35.00 })
     @IsOptional()

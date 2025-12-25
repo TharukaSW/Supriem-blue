@@ -310,7 +310,7 @@ export class PurchasingService {
             create: linesData,
           }
           : undefined,
-      },
+      } as any,
       include: {
         supplier: true,
         lines: {

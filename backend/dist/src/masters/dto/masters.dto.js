@@ -9,9 +9,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DeactivateCustomerPriceDto = exports.CustomerPriceQueryDto = exports.UpdateCustomerItemPriceDto = exports.CreateCustomerItemPriceDto = exports.DeactivateSupplierPriceDto = exports.SupplierPriceQueryDto = exports.UpdateSupplierItemPriceDto = exports.CreateSupplierItemPriceDto = exports.DeactivateCustomerDto = exports.CustomerQueryDto = exports.UpdateCustomerDto = exports.CreateCustomerDto = exports.DeactivateSupplierDto = exports.SupplierQueryDto = exports.UpdateSupplierDto = exports.CreateSupplierDto = exports.ItemQueryDto = exports.UpdateItemDto = exports.CreateItemDto = exports.UpdateCategoryDto = exports.CreateCategoryDto = exports.UpdateUnitDto = exports.CreateUnitDto = void 0;
+exports.DeactivateCustomerPriceDto = exports.CustomerPriceQueryDto = exports.UpdateCustomerItemPriceDto = exports.DeactivateSupplierPriceDto = exports.SupplierPriceQueryDto = exports.UpdateSupplierItemPriceDto = exports.DeactivateCustomerDto = exports.CustomerQueryDto = exports.UpdateCustomerDto = exports.CreateCustomerDto = exports.CreateCustomerItemPriceDto = exports.DeactivateSupplierDto = exports.SupplierQueryDto = exports.UpdateSupplierDto = exports.CreateSupplierDto = exports.CreateSupplierItemPriceDto = exports.ItemQueryDto = exports.UpdateItemDto = exports.CreateItemDto = exports.UpdateCategoryDto = exports.CreateCategoryDto = exports.UpdateUnitDto = exports.CreateUnitDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
+const class_transformer_1 = require("class-transformer");
 const client_1 = require("@prisma/client");
 class CreateUnitDto {
     unitName;
@@ -171,6 +172,37 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Boolean)
 ], ItemQueryDto.prototype, "isActive", void 0);
+class CreateSupplierItemPriceDto {
+    itemId;
+    unitPrice;
+    effectiveFrom;
+    endDate;
+}
+exports.CreateSupplierItemPriceDto = CreateSupplierItemPriceDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: '1' }),
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateSupplierItemPriceDto.prototype, "itemId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 25.50, description: 'Unit price must be greater than 0' }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0.01),
+    __metadata("design:type", Number)
+], CreateSupplierItemPriceDto.prototype, "unitPrice", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: '2024-01-01', description: 'Effective start date (YYYY-MM-DD)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsDateString)(),
+    __metadata("design:type", String)
+], CreateSupplierItemPriceDto.prototype, "effectiveFrom", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: '2024-12-31', description: 'End date (YYYY-MM-DD)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsDateString)(),
+    __metadata("design:type", String)
+], CreateSupplierItemPriceDto.prototype, "endDate", void 0);
 class CreateSupplierDto {
     supplierCode;
     supplierName;
@@ -178,6 +210,7 @@ class CreateSupplierDto {
     phone;
     email;
     address;
+    items;
 }
 exports.CreateSupplierDto = CreateSupplierDto;
 __decorate([
@@ -214,6 +247,17 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateSupplierDto.prototype, "address", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        type: [CreateSupplierItemPriceDto],
+        description: 'Array of item prices to create with the supplier (minimum 1 required)'
+    }),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.ArrayMinSize)(1, { message: 'At least one item is required' }),
+    (0, class_validator_1.ValidateNested)({ each: true }),
+    (0, class_transformer_1.Type)(() => CreateSupplierItemPriceDto),
+    __metadata("design:type", Array)
+], CreateSupplierDto.prototype, "items", void 0);
 class UpdateSupplierDto {
     supplierName;
     contactName;
@@ -304,6 +348,37 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], DeactivateSupplierDto.prototype, "reason", void 0);
+class CreateCustomerItemPriceDto {
+    itemId;
+    unitPrice;
+    effectiveFrom;
+    endDate;
+}
+exports.CreateCustomerItemPriceDto = CreateCustomerItemPriceDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: '1' }),
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateCustomerItemPriceDto.prototype, "itemId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 35.00, description: 'Unit price must be greater than 0' }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0.01),
+    __metadata("design:type", Number)
+], CreateCustomerItemPriceDto.prototype, "unitPrice", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: '2024-01-01', description: 'Effective start date (YYYY-MM-DD)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsDateString)(),
+    __metadata("design:type", String)
+], CreateCustomerItemPriceDto.prototype, "effectiveFrom", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: '2024-12-31', description: 'End date (YYYY-MM-DD)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsDateString)(),
+    __metadata("design:type", String)
+], CreateCustomerItemPriceDto.prototype, "endDate", void 0);
 class CreateCustomerDto {
     customerCode;
     customerName;
@@ -311,6 +386,7 @@ class CreateCustomerDto {
     phone;
     email;
     address;
+    products;
 }
 exports.CreateCustomerDto = CreateCustomerDto;
 __decorate([
@@ -347,6 +423,17 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateCustomerDto.prototype, "address", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        type: [CreateCustomerItemPriceDto],
+        description: 'Array of product prices to create with the customer (minimum 1 required)'
+    }),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.ArrayMinSize)(1, { message: 'At least one product is required' }),
+    (0, class_validator_1.ValidateNested)({ each: true }),
+    (0, class_transformer_1.Type)(() => CreateCustomerItemPriceDto),
+    __metadata("design:type", Array)
+], CreateCustomerDto.prototype, "products", void 0);
 class UpdateCustomerDto {
     customerName;
     contactName;
@@ -437,37 +524,6 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], DeactivateCustomerDto.prototype, "reason", void 0);
-class CreateSupplierItemPriceDto {
-    itemId;
-    unitPrice;
-    effectiveFrom;
-    endDate;
-}
-exports.CreateSupplierItemPriceDto = CreateSupplierItemPriceDto;
-__decorate([
-    (0, swagger_1.ApiProperty)({ example: '1' }),
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateSupplierItemPriceDto.prototype, "itemId", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ example: 25.50, description: 'Unit price must be greater than 0' }),
-    (0, class_validator_1.IsNumber)(),
-    (0, class_validator_1.Min)(0.01),
-    __metadata("design:type", Number)
-], CreateSupplierItemPriceDto.prototype, "unitPrice", void 0);
-__decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: '2024-01-01', description: 'Effective start date (YYYY-MM-DD)' }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsDateString)(),
-    __metadata("design:type", String)
-], CreateSupplierItemPriceDto.prototype, "effectiveFrom", void 0);
-__decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: '2024-12-31', description: 'End date (YYYY-MM-DD)' }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsDateString)(),
-    __metadata("design:type", String)
-], CreateSupplierItemPriceDto.prototype, "endDate", void 0);
 class UpdateSupplierItemPriceDto {
     unitPrice;
     endDate;
@@ -527,37 +583,6 @@ __decorate([
     (0, class_validator_1.IsDateString)(),
     __metadata("design:type", String)
 ], DeactivateSupplierPriceDto.prototype, "endDate", void 0);
-class CreateCustomerItemPriceDto {
-    itemId;
-    unitPrice;
-    effectiveFrom;
-    endDate;
-}
-exports.CreateCustomerItemPriceDto = CreateCustomerItemPriceDto;
-__decorate([
-    (0, swagger_1.ApiProperty)({ example: '1' }),
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateCustomerItemPriceDto.prototype, "itemId", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ example: 35.00, description: 'Unit price must be greater than 0' }),
-    (0, class_validator_1.IsNumber)(),
-    (0, class_validator_1.Min)(0.01),
-    __metadata("design:type", Number)
-], CreateCustomerItemPriceDto.prototype, "unitPrice", void 0);
-__decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: '2024-01-01', description: 'Effective start date (YYYY-MM-DD)' }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsDateString)(),
-    __metadata("design:type", String)
-], CreateCustomerItemPriceDto.prototype, "effectiveFrom", void 0);
-__decorate([
-    (0, swagger_1.ApiPropertyOptional)({ example: '2024-12-31', description: 'End date (YYYY-MM-DD)' }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsDateString)(),
-    __metadata("design:type", String)
-], CreateCustomerItemPriceDto.prototype, "endDate", void 0);
 class UpdateCustomerItemPriceDto {
     unitPrice;
     endDate;

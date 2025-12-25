@@ -19,33 +19,35 @@ model Role {
 }
 
 model User {
-  userId              BigInt            @id @default(autoincrement()) @map("user_id")
-  userCode            String            @unique @map("user_code") @db.VarChar(20)
-  roleId              Int               @map("role_id")
-  fullName            String            @map("full_name") @db.VarChar(120)
-  username            String?           @unique @db.VarChar(80)
-  email               String?           @db.VarChar(120)
-  phone               String?           @db.VarChar(30)
-  passwordHash        String            @map("password_hash")
-  isActive            Boolean           @default(true) @map("is_active")
-  createdAt           DateTime          @default(now()) @map("created_at")
-  updatedAt           DateTime          @default(now()) @updatedAt @map("updated_at")
-  recordedAttendances AttendanceDaily[] @relation("RecordedBy")
-  attendances         AttendanceDaily[] @relation("UserAttendance")
-  cashTransactions    CashTransaction[]
-  dispatches          Dispatch[]
-  employeeProfile     EmployeeProfile?
-  expenses            Expense[]
-  invoicesCreated     Invoice[]         @relation("CreatedBy")
-  invoicesMatched     Invoice[]         @relation("MatchCheckedBy")
-  payments            Payment[]
-  productionDays      ProductionDay[]
-  purchaseOrders      PurchaseOrder[]
-  salaryPaymentsPaid  SalaryPayment[]   @relation("PaidBy")
-  salaryRecords       SalaryRecord[]
-  salesOrders         SalesOrder[]
-  stockMovements      StockMovement[]
-  role                Role              @relation(fields: [roleId], references: [roleId])
+  userId                 BigInt            @id @default(autoincrement()) @map("user_id")
+  userCode               String            @unique @map("user_code") @db.VarChar(20)
+  roleId                 Int               @map("role_id")
+  fullName               String            @map("full_name") @db.VarChar(120)
+  username               String?           @unique @db.VarChar(80)
+  email                  String?           @db.VarChar(120)
+  phone                  String?           @db.VarChar(30)
+  passwordHash           String            @map("password_hash")
+  isActive               Boolean           @default(true) @map("is_active")
+  createdAt              DateTime          @default(now()) @map("created_at")
+  updatedAt              DateTime          @default(now()) @updatedAt @map("updated_at")
+  recordedAttendances    AttendanceDaily[] @relation("RecordedBy")
+  attendances            AttendanceDaily[] @relation("UserAttendance")
+  cashTransactions       CashTransaction[]
+  dispatches             Dispatch[]
+  employeeProfile        EmployeeProfile?
+  expenses               Expense[]
+  invoicesCreated        Invoice[]         @relation("CreatedBy")
+  invoicesMatched        Invoice[]         @relation("MatchCheckedBy")
+  payments               Payment[]
+  productionDaysCreated  ProductionDay[]   @relation("ProductionCreator")
+  productionDaysClosed   ProductionDay[]   @relation("ProductionCloser")
+  productionDaysReopened ProductionDay[]   @relation("ProductionReopener")
+  purchaseOrders         PurchaseOrder[]
+  salaryPaymentsPaid     SalaryPayment[]   @relation("PaidBy")
+  salaryRecords          SalaryRecord[]
+  salesOrders            SalesOrder[]
+  stockMovements         StockMovement[]
+  role                   Role              @relation(fields: [roleId], references: [roleId])
 
   @@map("users")
 }
@@ -176,7 +178,7 @@ model Item {
   invoiceLines       InvoiceLine[]
   category           ItemCategory?       @relation(fields: [categoryId], references: [categoryId])
   unit               Unit?               @relation(fields: [unitId], references: [unitId])
-  productionLines    ProductionLine[]
+  productionDays     ProductionDay[]     @relation("ProductionFinishedProduct")
   purchaseOrderLines PurchaseOrderLine[]
   salesOrderLines    SalesOrderLine[]
   stockBalance       StockBalance?
@@ -372,27 +374,28 @@ model Dispatch {
 }
 
 model ProductionDay {
-  productionDayId BigInt           @id @default(autoincrement()) @map("production_day_id")
-  productionDate  DateTime         @unique @map("production_date") @db.Date
-  notes           String?
-  recordedBy      BigInt?          @map("recorded_by")
-  createdAt       DateTime         @default(now()) @map("created_at")
-  recorder        User?            @relation(fields: [recordedBy], references: [userId])
-  lines           ProductionLine[]
+  productionDayId    BigInt    @id @default(autoincrement()) @map("production_day_id")
+  productionDate     DateTime  @map("production_date") @db.Date
+  finishedProductId  BigInt    @map("finished_product_id")
+  quantity           Decimal   @map("quantity") @db.Decimal(12, 3)
+  scrapQuantity      Decimal   @default(0) @map("scrap_quantity") @db.Decimal(12, 3)
+  notes              String?
+  isClosed           Boolean   @default(false) @map("is_closed")
+  closedAt           DateTime? @map("closed_at")
+  closedBy           BigInt?   @map("closed_by")
+  reopenReason       String?   @map("reopen_reason")
+  reopenedBy         BigInt?   @map("reopened_by")
+  reopenedAt         DateTime? @map("reopened_at")
+  createdBy          BigInt?   @map("created_by")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  
+  finishedProduct    Item      @relation("ProductionFinishedProduct", fields: [finishedProductId], references: [itemId])
+  creator            User?     @relation("ProductionCreator", fields: [createdBy], references: [userId])
+  closer             User?     @relation("ProductionCloser", fields: [closedBy], references: [userId])
+  reopener           User?     @relation("ProductionReopener", fields: [reopenedBy], references: [userId])
 
+  @@unique([productionDate, finishedProductId])
   @@map("production_days")
-}
-
-model ProductionLine {
-  productionLineId BigInt        @id @default(autoincrement()) @map("production_line_id")
-  productionDayId  BigInt        @map("production_day_id")
-  itemId           BigInt        @map("item_id")
-  qtyProduced      Decimal       @map("qty_produced") @db.Decimal(12, 3)
-  scrapQty         Decimal       @default(0) @map("scrap_qty") @db.Decimal(12, 3)
-  item             Item          @relation(fields: [itemId], references: [itemId])
-  productionDay    ProductionDay @relation(fields: [productionDayId], references: [productionDayId], onDelete: Cascade)
-
-  @@map("production_lines")
 }
 
 model StockMovement {
@@ -576,6 +579,7 @@ enum PayMethod {
 enum MovementType {
   PURCHASE_RECEIPT
   PRODUCTION_OUTPUT
+  PRODUCTION_ADJUSTMENT
   SALES_DISPATCH
   ADJUSTMENT_IN
   ADJUSTMENT_OUT

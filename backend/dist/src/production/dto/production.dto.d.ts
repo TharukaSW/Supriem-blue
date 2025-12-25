@@ -1,19 +1,19 @@
-export declare class ProductionLineDto {
-    itemId: string;
-    qtyProduced: number;
-    scrapQty?: number;
-}
 export declare class CreateProductionDayDto {
     productionDate: string;
+    finishedProductId: string;
+    quantity: number;
+    scrapQuantity?: number;
     notes?: string;
-    lines: ProductionLineDto[];
 }
 export declare class UpdateProductionDayDto {
+    quantity?: number;
+    scrapQuantity?: number;
     notes?: string;
 }
 export declare class ProductionQueryDto {
     page?: number;
     limit?: number;
+    search?: string;
     fromDate?: string;
     toDate?: string;
 }

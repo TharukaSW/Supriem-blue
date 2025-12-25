@@ -1,8 +1,10 @@
 import {
-  ComponentPortal,
   Overlay,
   OverlayModule
-} from "./chunk-JV3OQLOL.js";
+} from "./chunk-FCSC3ZFN.js";
+import {
+  ComponentPortal
+} from "./chunk-RF7ZMVJA.js";
 import {
   CdkScrollableModule,
   ScrollDispatcher
@@ -1072,4 +1074,4 @@ export {
   matTooltipAnimations,
   MatTooltipModule
 };
-//# sourceMappingURL=chunk-X3Q2GW76.js.map
+//# sourceMappingURL=chunk-KFTMF3VO.js.map

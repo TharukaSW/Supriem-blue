@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ApiService } from '../../core/services/api.service';
 
 @Component({
@@ -21,6 +22,7 @@ import { ApiService } from '../../core/services/api.service';
         MatPaginatorModule,
         MatProgressSpinnerModule,
         MatChipsModule,
+        MatTooltipModule,
     ],
     template: `
     <div class="page-container">
@@ -59,9 +61,12 @@ import { ApiService } from '../../core/services/api.service';
             </td>
           </ng-container>
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef></th>
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
             <td mat-cell *matCellDef="let row">
-              <button mat-icon-button [routerLink]="['/users', row.userId]">
+              <button mat-icon-button [routerLink]="['/users', row.userId]" matTooltip="View Profile">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button mat-icon-button [routerLink]="['/users', row.userId, 'edit']" matTooltip="Edit User">
                 <mat-icon>edit</mat-icon>
               </button>
             </td>

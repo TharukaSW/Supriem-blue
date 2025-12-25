@@ -260,7 +260,7 @@ export class CustomersListComponent implements OnInit {
 
     addCustomer() {
         const dialogRef = this.dialog.open(CustomerFormDialogComponent, {
-            width: '600px',
+            width: '900px',
             data: { mode: 'create' }
         });
 
@@ -277,7 +277,7 @@ export class CustomersListComponent implements OnInit {
 
     editCustomer(customer: Customer) {
         const dialogRef = this.dialog.open(CustomerFormDialogComponent, {
-            width: '600px',
+            width: '900px',
             data: { mode: 'edit', customer }
         });
 

@@ -36,8 +36,14 @@ let ProductionController = class ProductionController {
     findOne(id) {
         return this.productionService.findOne(BigInt(id));
     }
-    update(id, dto) {
-        return this.productionService.update(BigInt(id), dto);
+    update(id, dto, user) {
+        return this.productionService.update(BigInt(id), dto, user.userId);
+    }
+    closeDay(id, user) {
+        return this.productionService.closeDay(BigInt(id), user.userId);
+    }
+    reopenDay(id, reason, user) {
+        return this.productionService.reopenDay(BigInt(id), user.userId, reason);
     }
 };
 exports.ProductionController = ProductionController;
@@ -77,10 +83,34 @@ __decorate([
     (0, swagger_1.ApiParam)({ name: 'id', type: 'string' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, dto_1.UpdateProductionDayDto]),
+    __metadata("design:paramtypes", [String, dto_1.UpdateProductionDayDto, Object]),
     __metadata("design:returntype", void 0)
 ], ProductionController.prototype, "update", null);
+__decorate([
+    (0, common_1.Post)(':id/close'),
+    (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER),
+    (0, swagger_1.ApiOperation)({ summary: 'Close production day' }),
+    (0, swagger_1.ApiParam)({ name: 'id', type: 'string' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], ProductionController.prototype, "closeDay", null);
+__decorate([
+    (0, common_1.Post)(':id/reopen'),
+    (0, roles_decorator_1.Roles)(client_1.RoleName.ADMIN, client_1.RoleName.MANAGER),
+    (0, swagger_1.ApiOperation)({ summary: 'Reopen production day' }),
+    (0, swagger_1.ApiParam)({ name: 'id', type: 'string' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)('reason')),
+    __param(2, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", void 0)
+], ProductionController.prototype, "reopenDay", null);
 exports.ProductionController = ProductionController = __decorate([
     (0, swagger_1.ApiTags)('Production'),
     (0, swagger_1.ApiBearerAuth)(),

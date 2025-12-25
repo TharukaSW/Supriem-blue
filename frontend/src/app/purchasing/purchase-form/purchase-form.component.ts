@@ -306,6 +306,7 @@ export class PurchaseFormComponent implements OnInit {
   suppliers = signal<Supplier[]>([]);
   items = signal<Item[]>([]);
   filteredItems = signal<Item[]>([]);
+  supplierItems = signal<Item[]>([]); // Items supplied by selected supplier
 
   // Track form values for reactive computation
   private formValueSignal = signal<any>(null);
@@ -367,8 +368,13 @@ export class PurchaseFormComponent implements OnInit {
 
   onItemSearch(event: any) {
     const term = event.target.value.toLowerCase();
+    const supplierId = this.form.get('supplierId')?.value;
+    
+    // Filter from supplier items if supplier is selected, otherwise all items
+    const sourceItems = supplierId ? this.supplierItems() : this.items();
+    
     this.filteredItems.set(
-      this.items().filter(i =>
+      sourceItems.filter(i =>
         i.itemName.toLowerCase().includes(term) ||
         i.itemCode.toLowerCase().includes(term)
       )
@@ -376,8 +382,45 @@ export class PurchaseFormComponent implements OnInit {
   }
 
   onSupplierChange(supplierId: string) {
-    // Optionally alert user if changing supplier with items already added
-    // Update prices for existing items (optional logic)
+    if (!supplierId) {
+      this.supplierItems.set([]);
+      this.filteredItems.set(this.items());
+      return;
+    }
+
+    // Warn user if they have items already added
+    if (this.lines.length > 0) {
+      const confirmed = confirm('Changing supplier will clear existing items. Continue?');
+      if (!confirmed) {
+        // Revert supplier selection
+        this.form.patchValue({ supplierId: '' }, { emitEvent: false });
+        return;
+      }
+      // Clear existing lines
+      while (this.lines.length > 0) {
+        this.lines.removeAt(0);
+      }
+    }
+
+    // Load items for selected supplier
+    this.loading.set(true);
+    this.supplierService.getPrices(supplierId, { activeOnly: true }).subscribe({
+      next: (prices) => {
+        // Get unique item IDs from supplier prices
+        const itemIds = new Set(prices.map(p => p.itemId));
+        
+        // Filter items to only those supplied by this supplier
+        const supplierSpecificItems = this.items().filter(item => itemIds.has(item.itemId));
+        
+        this.supplierItems.set(supplierSpecificItems);
+        this.filteredItems.set(supplierSpecificItems);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.snackBar.open('Error loading supplier items', 'Close', { duration: 3000 });
+        this.loading.set(false);
+      }
+    });
   }
 
   addItem() {

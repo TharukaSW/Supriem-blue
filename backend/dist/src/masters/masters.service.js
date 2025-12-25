@@ -69,10 +69,18 @@ let MastersService = class MastersService {
         const existing = await this.prisma.item.findUnique({ where: { itemCode: dto.itemCode } });
         if (existing)
             throw new common_1.ConflictException('Item code already exists');
-        return this.prisma.item.create({
-            data: dto,
-            include: { category: true, unit: true },
-        });
+        try {
+            return this.prisma.item.create({
+                data: dto,
+                include: { category: true, unit: true },
+            });
+        }
+        catch (error) {
+            if (error.code === 'P2002' && error.meta?.target?.includes('item_name')) {
+                throw new common_1.ConflictException(`An item with the name "${dto.itemName}" and type "${dto.itemType}" already exists`);
+            }
+            throw error;
+        }
     }
     async findAllItems(query) {
         const page = Number(query.page) || 1;
@@ -136,11 +144,29 @@ let MastersService = class MastersService {
         const existing = await this.prisma.supplier.findUnique({ where: { supplierCode: dto.supplierCode } });
         if (existing)
             throw new common_1.ConflictException('Supplier code already exists');
+        const { items, ...supplierData } = dto;
         const supplier = await this.prisma.supplier.create({
             data: {
-                ...dto,
+                ...supplierData,
                 createdBy: BigInt(userId),
                 updatedBy: BigInt(userId),
+                ...(items && items.length > 0 ? {
+                    itemPrices: {
+                        create: items.map(item => ({
+                            itemId: BigInt(item.itemId),
+                            unitPrice: item.unitPrice,
+                            effectiveFrom: item.effectiveFrom ? new Date(item.effectiveFrom) : new Date(),
+                            endDate: item.endDate ? new Date(item.endDate) : null,
+                            createdBy: BigInt(userId),
+                            updatedBy: BigInt(userId),
+                        }))
+                    }
+                } : {})
+            },
+            include: {
+                itemPrices: {
+                    include: { item: true }
+                }
             }
         });
         return this.transformSupplier(supplier);
@@ -248,12 +274,29 @@ let MastersService = class MastersService {
         const existing = await this.prisma.customer.findUnique({ where: { customerCode: dto.customerCode } });
         if (existing)
             throw new common_1.ConflictException('Customer code already exists');
+        const { products, ...customerData } = dto;
         const customer = await this.prisma.customer.create({
             data: {
-                ...dto,
+                ...customerData,
                 createdBy: BigInt(userId),
                 updatedBy: BigInt(userId),
-            }
+                itemPrices: {
+                    create: products.map(product => ({
+                        itemId: BigInt(product.itemId),
+                        unitPrice: product.unitPrice,
+                        effectiveFrom: product.effectiveFrom ? new Date(product.effectiveFrom) : new Date(),
+                        endDate: product.endDate ? new Date(product.endDate) : null,
+                        isActive: true,
+                        createdBy: BigInt(userId),
+                        updatedBy: BigInt(userId),
+                    })),
+                },
+            },
+            include: {
+                itemPrices: {
+                    include: { item: true },
+                },
+            },
         });
         return this.transformCustomer(customer);
     }
