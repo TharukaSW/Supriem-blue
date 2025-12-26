@@ -149,29 +149,71 @@ export class ReportsService {
     }
 
     async getProfitReport(fromDate?: string, toDate?: string) {
-        const dateFilter = this.getDateFilter(fromDate, toDate, 'txDate');
+        const invoiceDateFilter = this.getDateFilter(fromDate, toDate, 'invoiceDate');
+        const expenseDateFilter = this.getDateFilter(fromDate, toDate, 'expenseDate');
 
-        const income = await this.prisma.cashTransaction.aggregate({
-            where: { txType: TxType.INCOME, ...(dateFilter ? { txDate: dateFilter } : {}) },
-            _sum: { amountIn: true },
+        // Calculate total income from sales invoices
+        const salesInvoices = await this.prisma.invoice.aggregate({
+            where: { 
+                invoiceType: InvoiceType.SALES,
+                ...(invoiceDateFilter ? { invoiceDate: invoiceDateFilter } : {})
+            },
+            _sum: { total: true },
+            _count: true,
         });
 
-        const expenses = await this.prisma.cashTransaction.aggregate({
-            where: { txType: TxType.EXPENSE, ...(dateFilter ? { txDate: dateFilter } : {}) },
-            _sum: { amountOut: true },
+        // Calculate total paid amount from sales (actual income received)
+        const paidSalesInvoices = await this.prisma.invoice.aggregate({
+            where: { 
+                invoiceType: InvoiceType.SALES,
+                status: DocStatus.PAID,
+                ...(invoiceDateFilter ? { invoiceDate: invoiceDateFilter } : {})
+            },
+            _sum: { total: true },
         });
 
-        const totalIncome = Number(income._sum.amountIn) || 0;
-        const totalExpenses = Number(expenses._sum.amountOut) || 0;
-        const profit = totalIncome - totalExpenses;
-        const profitMargin = totalIncome > 0 ? (profit / totalIncome) * 100 : 0;
+        // Calculate expenses from purchase invoices
+        const purchaseInvoices = await this.prisma.invoice.aggregate({
+            where: { 
+                invoiceType: InvoiceType.PURCHASE,
+                ...(invoiceDateFilter ? { invoiceDate: invoiceDateFilter } : {})
+            },
+            _sum: { total: true },
+            _count: true,
+        });
+
+        // Calculate operational expenses
+        const operationalExpenses = await this.prisma.expense.aggregate({
+            where: expenseDateFilter ? { expenseDate: expenseDateFilter } : {},
+            _sum: { amount: true },
+            _count: true,
+        });
+
+        const totalSalesIncome = Number(salesInvoices._sum.total) || 0;
+        const totalPaidIncome = Number(paidSalesInvoices._sum.total) || 0;
+        const totalPurchaseExpenses = Number(purchaseInvoices._sum.total) || 0;
+        const totalOperationalExpenses = Number(operationalExpenses._sum.amount) || 0;
+        const totalExpenses = totalPurchaseExpenses + totalOperationalExpenses;
+        
+        // Calculate profit based on total sales (not just paid)
+        const grossProfit = totalSalesIncome - totalExpenses;
+        const netProfit = totalPaidIncome - totalExpenses;
+        const profitMargin = totalSalesIncome > 0 ? (grossProfit / totalSalesIncome) * 100 : 0;
 
         return {
             period: { fromDate, toDate },
-            totalIncome,
+            totalIncome: totalSalesIncome,
+            totalPaidIncome: totalPaidIncome,
             totalExpenses,
-            profit,
+            purchaseExpenses: totalPurchaseExpenses,
+            operationalExpenses: totalOperationalExpenses,
+            profit: grossProfit,
+            netProfit: netProfit,
             profitMargin: Math.round(profitMargin * 100) / 100,
+            outstandingReceivables: totalSalesIncome - totalPaidIncome,
+            salesCount: salesInvoices._count || 0,
+            purchaseCount: purchaseInvoices._count || 0,
+            expenseCount: operationalExpenses._count || 0,
         };
     }
 

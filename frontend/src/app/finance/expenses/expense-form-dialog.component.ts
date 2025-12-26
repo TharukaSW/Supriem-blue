@@ -74,7 +74,7 @@ import { ExpenseService } from '../services/expense.service';
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Amount</mat-label>
           <input matInput type="number" formControlName="amount" required min="0" step="0.01" placeholder="0.00">
-          <span matPrefix>₹&nbsp;</span>
+          <span matPrefix>LKR&nbsp;</span>
           <mat-error *ngIf="expenseForm.get('amount')?.hasError('required')">
             Amount is required
           </mat-error>

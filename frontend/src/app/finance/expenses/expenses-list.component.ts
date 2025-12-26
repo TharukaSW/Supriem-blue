@@ -84,7 +84,7 @@ import { ExpenseFormDialogComponent } from './expense-form-dialog.component';
               <mat-card class="summary-card">
                 <mat-card-content>
                   <div class="summary-label">Total Expenses</div>
-                  <div class="summary-value expense">₹{{ totalAmount().toFixed(2) }}</div>
+                  <div class="summary-value expense">LKR {{ totalAmount().toFixed(2) }}</div>
                 </mat-card-content>
               </mat-card>
               <mat-card class="summary-card">
@@ -143,7 +143,7 @@ import { ExpenseFormDialogComponent } from './expense-form-dialog.component';
               <ng-container matColumnDef="amount">
                 <th mat-header-cell *matHeaderCellDef class="text-right">Amount</th>
                 <td mat-cell *matCellDef="let expense" class="text-right">
-                  <strong class="amount">₹{{ expense.amount.toFixed(2) }}</strong>
+                  <strong class="amount">LKR {{ expense.amount.toFixed(2) }}</strong>
                 </td>
               </ng-container>
 

@@ -87,7 +87,7 @@ import { Observable } from 'rxjs';
         <mat-card class="mb-4">
           <mat-card-header class="flex-header">
             <mat-card-title>Items</mat-card-title>
-            <button type="button" mat-stroked-button color="primary" (click)="addItem()">
+            <button type="button" mat-stroked-button color="primary" (click)="addItem()" [disabled]="!form.get('supplierId')?.value">
               <mat-icon>add</mat-icon> Add Item
             </button>
           </mat-card-header>
@@ -113,6 +113,11 @@ import { Observable } from 'rxjs';
                           <mat-option>
                             <input class="search-input" (keyup)="onItemSearch($event)" placeholder="Search item..." (click)="$event.stopPropagation()">
                           </mat-option>
+                          @if (filteredItems().length === 0 && !form.get('supplierId')?.value) {
+                            <mat-option disabled>
+                              Please select a supplier first
+                            </mat-option>
+                          }
                           @for (item of filteredItems(); track item.itemId) {
                             <mat-option [value]="item.itemId">
                               {{ item.itemName }} ({{ item.itemCode }})
@@ -153,7 +158,11 @@ import { Observable } from 'rxjs';
                   @if (lines.length === 0) {
                     <tr>
                       <td colspan="5" class="text-center py-4 text-gray-500">
-                        No items added. Click "Add Item" to start.
+                        @if (!form.get('supplierId')?.value) {
+                          Please select a supplier first, then click "Add Item" to start.
+                        } @else {
+                          No items added. Click "Add Item" to start.
+                        }
                       </td>
                     </tr>
                   }
@@ -301,6 +310,7 @@ import { Observable } from 'rxjs';
 export class PurchaseFormComponent implements OnInit {
   form: FormGroup;
   isEditMode = false;
+  purchaseId: string | null = null;
   loading = signal(false);
 
   suppliers = signal<Supplier[]>([]);
@@ -335,6 +345,12 @@ export class PurchaseFormComponent implements OnInit {
   }
 
   ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.isEditMode = true;
+      this.purchaseId = id;
+    }
+
     this.loadMasterData();
 
     // Track form changes to trigger reactive computations
@@ -359,10 +375,69 @@ export class PurchaseFormComponent implements OnInit {
       next: (res) => {
         const items = res.data || [];
         this.items.set(items);
-        this.filteredItems.set(items);
+        // Don't set filteredItems initially - wait for supplier selection
+        this.filteredItems.set([]);
         this.loading.set(false);
+
+        // Load purchase data if in edit mode
+        if (this.isEditMode && this.purchaseId) {
+          this.loadPurchaseData(this.purchaseId);
+        }
       },
       error: () => this.loading.set(false)
+    });
+  }
+
+  loadPurchaseData(id: string) {
+    this.loading.set(true);
+    this.purchasingService.getPurchaseOrder(id).subscribe({
+      next: (po) => {
+        // Patch form with purchase data
+        this.form.patchValue({
+          supplierId: po.supplierId,
+          purchaseDate: new Date(po.purchaseDate),
+          notes: po.notes || '',
+          tax: po.tax || 0,
+          discount: po.discount || 0
+        });
+
+        // Load supplier items first
+        this.supplierService.getPrices(po.supplierId, { activeOnly: true }).subscribe({
+          next: (prices) => {
+            const itemIds = new Set(prices.map(p => p.itemId));
+            const supplierSpecificItems = this.items().filter(item => itemIds.has(item.itemId));
+            this.supplierItems.set(supplierSpecificItems);
+            this.filteredItems.set(supplierSpecificItems);
+
+            // Add existing lines
+            po.lines.forEach(line => {
+              const lineGroup = this.fb.group({
+                itemId: [line.itemId, Validators.required],
+                qty: [line.qty, [Validators.required, Validators.min(0.001)]],
+                unitPrice: [line.unitPrice, [Validators.required, Validators.min(0)]]
+              });
+
+              lineGroup.valueChanges.subscribe(() => {
+                this.formValueSignal.set(this.form.value);
+              });
+
+              this.lines.push(lineGroup);
+            });
+
+            this.formValueSignal.set(this.form.value);
+            this.loading.set(false);
+          },
+          error: () => {
+            this.snackBar.open('Error loading supplier items', 'Close', { duration: 3000 });
+            this.loading.set(false);
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error loading purchase order', err);
+        this.snackBar.open('Error loading purchase order', 'Close', { duration: 3000 });
+        this.router.navigate(['/purchases']);
+      }
     });
   }
 
@@ -505,7 +580,17 @@ export class PurchaseFormComponent implements OnInit {
     };
 
     if (this.isEditMode) {
-      // Update logic here
+      this.purchasingService.updatePurchaseOrder(this.purchaseId!, payload).subscribe({
+        next: () => {
+          this.snackBar.open('Purchase order updated successfully', 'Close', { duration: 3000 });
+          this.router.navigate(['/purchases', this.purchaseId]);
+        },
+        error: (err) => {
+          console.error(err);
+          this.snackBar.open('Error updating purchase order', 'Close', { duration: 3000 });
+          this.loading.set(false);
+        }
+      });
     } else {
       this.purchasingService.createPurchaseOrder(payload).subscribe({
         next: () => {

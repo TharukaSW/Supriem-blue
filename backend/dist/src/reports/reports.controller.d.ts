@@ -123,9 +123,17 @@ export declare class ReportsController {
             toDate: string | undefined;
         };
         totalIncome: number;
+        totalPaidIncome: number;
         totalExpenses: number;
+        purchaseExpenses: number;
+        operationalExpenses: number;
         profit: number;
+        netProfit: number;
         profitMargin: number;
+        outstandingReceivables: number;
+        salesCount: number;
+        purchaseCount: number;
+        expenseCount: number;
     }>;
     getAttendanceReport(fromDate?: string, toDate?: string): Promise<{
         period: {

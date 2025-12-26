@@ -1,0 +1,19 @@
+{
+  "name": "supreme-blue-erp",
+  "version": "1.0.0",
+  "description": "Supreme Blue Water Bottling Factory ERP System",
+  "engines": {
+    "node": "20.x",
+    "npm": "10.x"
+  },
+  "scripts": {
+    "install": "cd backend && npm install",
+    "build": "cd backend && npm run build",
+    "start": "cd backend && npm run start:prod",
+    "heroku-postbuild": "cd backend && npm install && npx prisma generate && npm run build && cd ../frontend && npm install && npm run build:prod && cd ../backend && mkdir -p public && cp -r ../frontend/dist/supreme-blue-frontend/browser/* public/"
+  },
+  "keywords": ["erp", "nestjs", "angular", "postgresql"],
+  "author": "",
+  "license": "UNLICENSED",
+  "private": true
+}

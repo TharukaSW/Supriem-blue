@@ -140,9 +140,10 @@ export class CreateSupplierItemPriceDto {
 
 // Suppliers
 export class CreateSupplierDto {
-    @ApiProperty({ example: 'SUP001' })
+    @ApiPropertyOptional({ example: 'SUP001', description: 'Auto-generated if not provided' })
+    @IsOptional()
     @IsString()
-    supplierCode: string;
+    supplierCode?: string;
 
     @ApiProperty({ example: 'ABC Plastics Pvt Ltd' })
     @IsString()
@@ -267,9 +268,10 @@ export class CreateCustomerItemPriceDto {
 
 // Customers
 export class CreateCustomerDto {
-    @ApiProperty({ example: 'CUS001' })
+    @ApiPropertyOptional({ example: 'CUS001', description: 'Auto-generated if not provided' })
+    @IsOptional()
     @IsString()
-    customerCode: string;
+    customerCode?: string;
 
     @ApiProperty({ example: 'XYZ Supermarket' })
     @IsString()

@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 import { SalesService, SalesOrder, DocStatus } from '../services/sales.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../core/components/confirm-dialog.component';
 
 @Component({
@@ -34,7 +34,8 @@ import { ConfirmDialogComponent } from '../../core/components/confirm-dialog.com
     MatInputModule,
     MatMenuModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatDialogModule
   ],
   template: `
         <div class="page-container">
@@ -110,7 +111,7 @@ import { ConfirmDialogComponent } from '../../core/components/confirm-dialog.com
                             <!-- Actions Column -->
                             <ng-container matColumnDef="actions">
                                 <th mat-header-cell *matHeaderCellDef>Actions</th>
-                                <td mat-cell *matCellDef="let order">
+                                <td mat-cell *matCellDef="let order" (click)="$event.stopPropagation()">
                                     <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Actions">
                                         <mat-icon>more_vert</mat-icon>
                                     </button>

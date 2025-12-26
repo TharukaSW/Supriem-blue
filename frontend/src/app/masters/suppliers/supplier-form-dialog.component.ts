@@ -37,14 +37,6 @@ import { ItemService, Item } from '../services/item.service';
         <mat-dialog-content>
             <form [formGroup]="form" class="supplier-form">
                 <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Supplier Code</mat-label>
-                    <input matInput formControlName="supplierCode" placeholder="SUP001" required>
-                    <mat-error *ngIf="form.get('supplierCode')?.hasError('required')">
-                        Supplier code is required
-                    </mat-error>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="full-width">
                     <mat-label>Supplier Name</mat-label>
                     <input matInput formControlName="supplierName" placeholder="ABC Plastics Pvt Ltd" required>
                     <mat-error *ngIf="form.get('supplierName')?.hasError('required')">
@@ -107,44 +99,50 @@ import { ItemService, Item } from '../services/item.service';
                         </button>
                     </div>
 
-                    <table mat-table [dataSource]="items.controls" class="items-table" *ngIf="items.length > 0">
-                        <ng-container matColumnDef="item">
-                            <th mat-header-cell *matHeaderCellDef>Item</th>
-                            <td mat-cell *matCellDef="let itemControl">
-                                {{ getItemName(itemControl.get('itemId')?.value) }}
-                            </td>
-                        </ng-container>
+                    <div class="items-list-section">
+                        <div *ngIf="items.length > 0" class="items-count-badge">
+                            {{ items.length }} item{{ items.length > 1 ? 's' : '' }} added
+                        </div>
+                        
+                        <table mat-table [dataSource]="itemsDataSource" class="items-table" *ngIf="items.length > 0">
+                            <ng-container matColumnDef="item">
+                                <th mat-header-cell *matHeaderCellDef>Item</th>
+                                <td mat-cell *matCellDef="let itemControl">
+                                    {{ getItemName(itemControl.get('itemId')?.value) }}
+                                </td>
+                            </ng-container>
 
-                        <ng-container matColumnDef="unitPrice">
-                            <th mat-header-cell *matHeaderCellDef>Unit Price</th>
-                            <td mat-cell *matCellDef="let itemControl">
-                                {{ itemControl.get('unitPrice')?.value | number:'1.2-2' }}
-                            </td>
-                        </ng-container>
+                            <ng-container matColumnDef="unitPrice">
+                                <th mat-header-cell *matHeaderCellDef>Unit Price</th>
+                                <td mat-cell *matCellDef="let itemControl">
+                                    Rs. {{ itemControl.get('unitPrice')?.value | number:'1.2-2' }}
+                                </td>
+                            </ng-container>
 
-                        <ng-container matColumnDef="effectiveFrom">
-                            <th mat-header-cell *matHeaderCellDef>Effective From</th>
-                            <td mat-cell *matCellDef="let itemControl">
-                                {{ itemControl.get('effectiveFrom')?.value | date:'mediumDate' }}
-                            </td>
-                        </ng-container>
+                            <ng-container matColumnDef="effectiveFrom">
+                                <th mat-header-cell *matHeaderCellDef>Effective From</th>
+                                <td mat-cell *matCellDef="let itemControl">
+                                    {{ itemControl.get('effectiveFrom')?.value | date:'mediumDate' }}
+                                </td>
+                            </ng-container>
 
-                        <ng-container matColumnDef="actions">
-                            <th mat-header-cell *matHeaderCellDef>Actions</th>
-                            <td mat-cell *matCellDef="let itemControl; let i = index">
-                                <button mat-icon-button color="warn" (click)="removeItem(i)" *ngIf="data.mode === 'create'">
-                                    <mat-icon>delete</mat-icon>
-                                </button>
-                            </td>
-                        </ng-container>
+                            <ng-container matColumnDef="actions">
+                                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                                <td mat-cell *matCellDef="let itemControl; let i = index">
+                                    <button mat-icon-button color="warn" (click)="removeItem(i)" *ngIf="data.mode === 'create'" title="Remove item">
+                                        <mat-icon>delete</mat-icon>
+                                    </button>
+                                </td>
+                            </ng-container>
 
-                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-                    </table>
+                            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                        </table>
 
-                    <p *ngIf="items.length === 0" class="no-items error-message">
-                        {{ data.mode === 'create' ? '⚠ At least one item is required. Add items using the form above.' : 'No items added yet. Use the Supplier Prices dialog to manage prices.' }}
-                    </p>
+                        <p *ngIf="items.length === 0" class="no-items error-message">
+                            {{ data.mode === 'create' ? '⚠ At least one item is required. Add items using the form above.' : 'No items added yet. Use the Supplier Prices dialog to manage prices.' }}
+                        </p>
+                    </div>
                 </div>
             </form>
         </mat-dialog-content>
@@ -157,8 +155,8 @@ import { ItemService, Item } from '../services/item.service';
     `,
     styles: [`
         :host ::ng-deep .mat-mdc-dialog-container {
-            max-width: 1200px !important;
-            width: 95vw !important;
+            width: auto !important;
+            max-width: none !important;
         }
 
         .supplier-form {
@@ -215,18 +213,42 @@ import { ItemService, Item } from '../services/item.service';
             flex: 1;
         }
 
+        .items-list-section {
+            position: relative;
+            margin-top: 16px;
+        }
+
+        .items-count-badge {
+            display: inline-block;
+            background: #1976d2;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
         .items-table {
             width: 100%;
-            margin-top: 16px;
+            margin-top: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
         }
 
         .items-table th {
             font-weight: 500;
             color: rgba(0, 0, 0, 0.87);
+            background-color: #f5f5f5;
         }
 
         .items-table td, .items-table th {
             padding: 12px 8px;
+        }
+
+        .items-table tr:hover {
+            background-color: #f5f5f5;
         }
 
         .no-items {
@@ -255,6 +277,7 @@ export class SupplierFormDialogComponent implements OnInit {
     newItemPrice: number | null = null;
     newItemEffectiveFrom: Date = new Date();
     displayedColumns: string[] = ['item', 'unitPrice', 'effectiveFrom', 'actions'];
+    itemsDataSource: any[] = [];
 
     constructor(
         private fb: FormBuilder,
@@ -267,10 +290,6 @@ export class SupplierFormDialogComponent implements OnInit {
 
     ngOnInit() {
         this.form = this.fb.group({
-            supplierCode: [
-                { value: this.data.supplier?.supplierCode || '', disabled: this.data.mode === 'edit' },
-                [Validators.required]
-            ],
             supplierName: [this.data.supplier?.supplierName || '', [Validators.required]],
             contactName: [this.data.supplier?.contactName || ''],
             phone: [this.data.supplier?.phone || ''],
@@ -292,6 +311,9 @@ export class SupplierFormDialogComponent implements OnInit {
                 }));
             });
         }
+        
+        // Initialize data source
+        this.updateDataSource();
     }
 
     get items() {
@@ -307,6 +329,10 @@ export class SupplierFormDialogComponent implements OnInit {
                 this.snackBar.open('Error loading items', 'Close', { duration: 3000 });
             }
         });
+    }
+
+    updateDataSource() {
+        this.itemsDataSource = [...this.items.controls];
     }
 
     addItem() {
@@ -326,6 +352,13 @@ export class SupplierFormDialogComponent implements OnInit {
                 effectiveFrom: [this.newItemEffectiveFrom || new Date()]
             }));
 
+            // Update the data source to refresh the table
+            this.updateDataSource();
+
+            // Get item name for success message
+            const itemName = this.getItemName(this.selectedItemId);
+            this.snackBar.open(`Added: ${itemName}`, 'Close', { duration: 2000 });
+
             // Reset inputs
             this.selectedItemId = '';
             this.newItemPrice = null;
@@ -335,6 +368,7 @@ export class SupplierFormDialogComponent implements OnInit {
 
     removeItem(index: number) {
         this.items.removeAt(index);
+        this.updateDataSource();
     }
 
     getItemName(itemId: string): string {
@@ -368,7 +402,6 @@ export class SupplierFormDialogComponent implements OnInit {
                     contactName: formValue.contactName,
                     phone: formValue.phone,
                     email: formValue.email,
-                    address: formValue.address,
                     items: formValue.items.map((item: any) => ({
                         itemId: item.itemId,
                         unitPrice: parseFloat(item.unitPrice),

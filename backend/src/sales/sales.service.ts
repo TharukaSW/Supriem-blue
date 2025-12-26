@@ -149,7 +149,32 @@ export class SalesService {
                 },
             });
 
+            // Create stock movements and update stock balance (reduce inventory)
+            for (const line of order.lines) {
+                await tx.stockMovement.create({
+                    data: {
+                        movementType: MovementType.SALES_DISPATCH,
+                        itemId: line.itemId,
+                        qtyIn: 0,
+                        qtyOut: line.qty,
+                        unitCost: line.unitPrice,
+                        refTable: 'sales_orders',
+                        refId: order.salesOrderId,
+                        createdBy: BigInt(userId),
+                    },
+                });
+
+                await tx.stockBalance.upsert({
+                    where: { itemId: line.itemId },
+                    update: { qtyOnHand: { decrement: line.qty } },
+                    create: { itemId: line.itemId, qtyOnHand: 0 },
+                });
+            }
+
             return { message: 'Sales order confirmed', invoiceId: invoice.invoiceId.toString() };
+        }, {
+            maxWait: 10000, // 10 seconds max wait to acquire connection
+            timeout: 30000, // 30 seconds timeout for the transaction
         });
     }
 
@@ -190,29 +215,12 @@ export class SalesService {
             // Update order status
             await tx.salesOrder.update({ where: { salesOrderId: BigInt(dto.salesOrderId) }, data: { status: DocStatus.DISPATCHED } });
 
-            // Create stock movements (dispatch decreases stock)
-            for (const line of order.lines) {
-                await tx.stockMovement.create({
-                    data: {
-                        movementType: MovementType.SALES_DISPATCH,
-                        itemId: line.itemId,
-                        qtyIn: 0,
-                        qtyOut: line.qty,
-                        unitCost: line.unitPrice,
-                        refTable: 'dispatches',
-                        refId: dispatch.dispatchId,
-                        createdBy: BigInt(userId),
-                    },
-                });
-
-                await tx.stockBalance.upsert({
-                    where: { itemId: line.itemId },
-                    update: { qtyOnHand: { decrement: line.qty } },
-                    create: { itemId: line.itemId, qtyOnHand: 0 },
-                });
-            }
+            // Stock already reduced during confirmOrder - no need to update again
 
             return this.transformDispatch(dispatch);
+        }, {
+            maxWait: 10000,
+            timeout: 30000,
         });
     }
 

@@ -6,6 +6,7 @@ datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model Role {
@@ -39,8 +40,8 @@ model User {
   invoicesCreated        Invoice[]         @relation("CreatedBy")
   invoicesMatched        Invoice[]         @relation("MatchCheckedBy")
   payments               Payment[]
-  productionDaysCreated  ProductionDay[]   @relation("ProductionCreator")
   productionDaysClosed   ProductionDay[]   @relation("ProductionCloser")
+  productionDaysCreated  ProductionDay[]   @relation("ProductionCreator")
   productionDaysReopened ProductionDay[]   @relation("ProductionReopener")
   purchaseOrders         PurchaseOrder[]
   salaryPaymentsPaid     SalaryPayment[]   @relation("PaidBy")
@@ -273,32 +274,32 @@ model CustomerItemPrice {
 }
 
 model PurchaseOrder {
-  purchaseId    BigInt              @id @default(autoincrement()) @map("purchase_id")
-  purchaseNo    String              @unique @map("purchase_no") @db.VarChar(30)
-  supplierId    BigInt              @map("supplier_id")
-  purchaseDate  DateTime            @default(now()) @map("purchase_date") @db.Date
-  status        DocStatus           @default(DRAFT)
-  notes         String?
-  subtotal      Decimal             @default(0) @db.Decimal(12, 2)
-  discount      Decimal             @default(0) @db.Decimal(12, 2)
-  tax           Decimal             @default(0) @db.Decimal(12, 2)
-  total         Decimal             @default(0) @db.Decimal(12, 2)
-  createdBy     BigInt?             @map("created_by")
-  createdAt     DateTime            @default(now()) @map("created_at")
-  updatedBy     BigInt?             @map("updated_by")
-  updatedAt     DateTime            @default(now()) @updatedAt @map("updated_at")
-  confirmedAt   DateTime?           @map("confirmed_at")
-  confirmedBy   BigInt?             @map("confirmed_by")
-  receivedAt    DateTime?           @map("received_at")
-  receivedBy    BigInt?             @map("received_by")
-  cancelledAt   DateTime?           @map("cancelled_at")
-  cancelledBy   BigInt?             @map("cancelled_by")
-  cancelReason  String?             @map("cancel_reason")
-  invoices      Invoice[]
-  lines         PurchaseOrderLine[]
-  stockMovements StockMovement[]    @relation("PurchaseOrderMovements")
-  creator       User?               @relation(fields: [createdBy], references: [userId])
-  supplier      Supplier            @relation(fields: [supplierId], references: [supplierId])
+  purchaseId     BigInt              @id @default(autoincrement()) @map("purchase_id")
+  purchaseNo     String              @unique @map("purchase_no") @db.VarChar(30)
+  supplierId     BigInt              @map("supplier_id")
+  purchaseDate   DateTime            @default(now()) @map("purchase_date") @db.Date
+  status         DocStatus           @default(DRAFT)
+  notes          String?
+  subtotal       Decimal             @default(0) @db.Decimal(12, 2)
+  discount       Decimal             @default(0) @db.Decimal(12, 2)
+  tax            Decimal             @default(0) @db.Decimal(12, 2)
+  total          Decimal             @default(0) @db.Decimal(12, 2)
+  createdBy      BigInt?             @map("created_by")
+  createdAt      DateTime            @default(now()) @map("created_at")
+  updatedBy      BigInt?             @map("updated_by")
+  updatedAt      DateTime            @default(now()) @updatedAt @map("updated_at")
+  confirmedAt    DateTime?           @map("confirmed_at")
+  confirmedBy    BigInt?             @map("confirmed_by")
+  receivedAt     DateTime?           @map("received_at")
+  receivedBy     BigInt?             @map("received_by")
+  cancelledAt    DateTime?           @map("cancelled_at")
+  cancelledBy    BigInt?             @map("cancelled_by")
+  cancelReason   String?             @map("cancel_reason")
+  invoices       Invoice[]
+  lines          PurchaseOrderLine[]
+  creator        User?               @relation(fields: [createdBy], references: [userId])
+  supplier       Supplier            @relation(fields: [supplierId], references: [supplierId])
+  stockMovements StockMovement[]     @relation("PurchaseOrderMovements")
 
   @@index([purchaseDate])
   @@map("purchase_orders")
@@ -374,25 +375,24 @@ model Dispatch {
 }
 
 model ProductionDay {
-  productionDayId    BigInt    @id @default(autoincrement()) @map("production_day_id")
-  productionDate     DateTime  @map("production_date") @db.Date
-  finishedProductId  BigInt    @map("finished_product_id")
-  quantity           Decimal   @map("quantity") @db.Decimal(12, 3)
-  scrapQuantity      Decimal   @default(0) @map("scrap_quantity") @db.Decimal(12, 3)
-  notes              String?
-  isClosed           Boolean   @default(false) @map("is_closed")
-  closedAt           DateTime? @map("closed_at")
-  closedBy           BigInt?   @map("closed_by")
-  reopenReason       String?   @map("reopen_reason")
-  reopenedBy         BigInt?   @map("reopened_by")
-  reopenedAt         DateTime? @map("reopened_at")
-  createdBy          BigInt?   @map("created_by")
-  createdAt          DateTime  @default(now()) @map("created_at")
-  
-  finishedProduct    Item      @relation("ProductionFinishedProduct", fields: [finishedProductId], references: [itemId])
-  creator            User?     @relation("ProductionCreator", fields: [createdBy], references: [userId])
-  closer             User?     @relation("ProductionCloser", fields: [closedBy], references: [userId])
-  reopener           User?     @relation("ProductionReopener", fields: [reopenedBy], references: [userId])
+  productionDayId   BigInt    @id @default(autoincrement()) @map("production_day_id")
+  productionDate    DateTime  @map("production_date") @db.Date
+  finishedProductId BigInt    @map("finished_product_id")
+  quantity          Decimal   @map("quantity") @db.Decimal(12, 3)
+  scrapQuantity     Decimal   @default(0) @map("scrap_quantity") @db.Decimal(12, 3)
+  notes             String?
+  isClosed          Boolean   @default(false) @map("is_closed")
+  closedAt          DateTime? @map("closed_at")
+  closedBy          BigInt?   @map("closed_by")
+  reopenReason      String?   @map("reopen_reason")
+  reopenedBy        BigInt?   @map("reopened_by")
+  reopenedAt        DateTime? @map("reopened_at")
+  createdBy         BigInt?   @map("created_by")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  closer            User?     @relation("ProductionCloser", fields: [closedBy], references: [userId])
+  creator           User?     @relation("ProductionCreator", fields: [createdBy], references: [userId])
+  finishedProduct   Item      @relation("ProductionFinishedProduct", fields: [finishedProductId], references: [itemId])
+  reopener          User?     @relation("ProductionReopener", fields: [reopenedBy], references: [userId])
 
   @@unique([productionDate, finishedProductId])
   @@map("production_days")

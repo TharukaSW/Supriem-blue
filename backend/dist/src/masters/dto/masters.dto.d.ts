@@ -41,7 +41,7 @@ export declare class CreateSupplierItemPriceDto {
     endDate?: string;
 }
 export declare class CreateSupplierDto {
-    supplierCode: string;
+    supplierCode?: string;
     supplierName: string;
     contactName?: string;
     phone?: string;
@@ -74,7 +74,7 @@ export declare class CreateCustomerItemPriceDto {
     endDate?: string;
 }
 export declare class CreateCustomerDto {
-    customerCode: string;
+    customerCode?: string;
     customerName: string;
     contactName?: string;
     phone?: string;

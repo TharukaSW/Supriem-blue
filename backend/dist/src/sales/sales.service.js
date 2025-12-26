@@ -144,7 +144,29 @@ let SalesService = class SalesService {
                     },
                 },
             });
+            for (const line of order.lines) {
+                await tx.stockMovement.create({
+                    data: {
+                        movementType: client_1.MovementType.SALES_DISPATCH,
+                        itemId: line.itemId,
+                        qtyIn: 0,
+                        qtyOut: line.qty,
+                        unitCost: line.unitPrice,
+                        refTable: 'sales_orders',
+                        refId: order.salesOrderId,
+                        createdBy: BigInt(userId),
+                    },
+                });
+                await tx.stockBalance.upsert({
+                    where: { itemId: line.itemId },
+                    update: { qtyOnHand: { decrement: line.qty } },
+                    create: { itemId: line.itemId, qtyOnHand: 0 },
+                });
+            }
             return { message: 'Sales order confirmed', invoiceId: invoice.invoiceId.toString() };
+        }, {
+            maxWait: 10000,
+            timeout: 30000,
         });
     }
     async cancelOrder(id) {
@@ -179,26 +201,10 @@ let SalesService = class SalesService {
                 include: { salesOrder: { include: { customer: true } } },
             });
             await tx.salesOrder.update({ where: { salesOrderId: BigInt(dto.salesOrderId) }, data: { status: client_1.DocStatus.DISPATCHED } });
-            for (const line of order.lines) {
-                await tx.stockMovement.create({
-                    data: {
-                        movementType: client_1.MovementType.SALES_DISPATCH,
-                        itemId: line.itemId,
-                        qtyIn: 0,
-                        qtyOut: line.qty,
-                        unitCost: line.unitPrice,
-                        refTable: 'dispatches',
-                        refId: dispatch.dispatchId,
-                        createdBy: BigInt(userId),
-                    },
-                });
-                await tx.stockBalance.upsert({
-                    where: { itemId: line.itemId },
-                    update: { qtyOnHand: { decrement: line.qty } },
-                    create: { itemId: line.itemId, qtyOnHand: 0 },
-                });
-            }
             return this.transformDispatch(dispatch);
+        }, {
+            maxWait: 10000,
+            timeout: 30000,
         });
     }
     async findAllDispatches(query) {

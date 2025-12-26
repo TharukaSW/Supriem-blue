@@ -121,10 +121,10 @@ export class SupplierService {
     }
 
     updatePrice(supplierId: string, priceId: string, data: UpdateSupplierPriceDto): Observable<SupplierItemPrice> {
-        return this.api.put(`${this.endpoint}/${supplierId}/prices/${priceId}`, data);
+        return this.api.patch(`${this.endpoint}/${supplierId}/prices/${priceId}`, data);
     }
 
     deactivatePrice(supplierId: string, priceId: string, endDate?: string): Observable<any> {
-        return this.api.put(`${this.endpoint}/${supplierId}/prices/${priceId}/deactivate`, { endDate });
+        return this.api.patch(`${this.endpoint}/${supplierId}/prices/${priceId}/deactivate`, { endDate });
     }
 }

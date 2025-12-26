@@ -50,13 +50,13 @@ interface DateFilter {
               <div class="date-filters">
                 <mat-form-field appearance="outline">
                   <mat-label>From Date</mat-label>
-                  <input matInput [matDatepicker]="salesFromPicker" [(ngModel)]="salesFilter().fromDate">
+                  <input matInput [matDatepicker]="salesFromPicker" [(ngModel)]="salesFilter().fromDate" (ngModelChange)="loadSalesReport()">
                   <mat-datepicker-toggle matSuffix [for]="salesFromPicker"></mat-datepicker-toggle>
                   <mat-datepicker #salesFromPicker></mat-datepicker>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>To Date</mat-label>
-                  <input matInput [matDatepicker]="salesToPicker" [(ngModel)]="salesFilter().toDate">
+                  <input matInput [matDatepicker]="salesToPicker" [(ngModel)]="salesFilter().toDate" (ngModelChange)="loadSalesReport()">
                   <mat-datepicker-toggle matSuffix [for]="salesToPicker"></mat-datepicker-toggle>
                   <mat-datepicker #salesToPicker></mat-datepicker>
                 </mat-form-field>
@@ -65,9 +65,6 @@ interface DateFilter {
                 <button mat-stroked-button (click)="setToday('sales')">Today</button>
                 <button mat-stroked-button (click)="setThisWeek('sales')">This Week</button>
                 <button mat-stroked-button (click)="setThisMonth('sales')">This Month</button>
-                <button mat-raised-button color="primary" (click)="loadSalesReport()">
-                  <mat-icon>search</mat-icon> Run Report
-                </button>
                 <button mat-raised-button color="accent" (click)="exportToPDF('sales')" [disabled]="!salesData()">
                   <mat-icon>picture_as_pdf</mat-icon> Export PDF
                 </button>
@@ -143,13 +140,13 @@ interface DateFilter {
               <div class="date-filters">
                 <mat-form-field appearance="outline">
                   <mat-label>From Date</mat-label>
-                  <input matInput [matDatepicker]="purchaseFromPicker" [(ngModel)]="purchaseFilter().fromDate">
+                  <input matInput [matDatepicker]="purchaseFromPicker" [(ngModel)]="purchaseFilter().fromDate" (ngModelChange)="loadPurchaseReport()">
                   <mat-datepicker-toggle matSuffix [for]="purchaseFromPicker"></mat-datepicker-toggle>
                   <mat-datepicker #purchaseFromPicker></mat-datepicker>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>To Date</mat-label>
-                  <input matInput [matDatepicker]="purchaseToPicker" [(ngModel)]="purchaseFilter().toDate">
+                  <input matInput [matDatepicker]="purchaseToPicker" [(ngModel)]="purchaseFilter().toDate" (ngModelChange)="loadPurchaseReport()">
                   <mat-datepicker-toggle matSuffix [for]="purchaseToPicker"></mat-datepicker-toggle>
                   <mat-datepicker #purchaseToPicker></mat-datepicker>
                 </mat-form-field>
@@ -158,9 +155,6 @@ interface DateFilter {
                 <button mat-stroked-button (click)="setToday('purchase')">Today</button>
                 <button mat-stroked-button (click)="setThisWeek('purchase')">This Week</button>
                 <button mat-stroked-button (click)="setThisMonth('purchase')">This Month</button>
-                <button mat-raised-button color="primary" (click)="loadPurchaseReport()">
-                  <mat-icon>search</mat-icon> Run Report
-                </button>
                 <button mat-raised-button color="accent" (click)="exportToPDF('purchase')" [disabled]="!purchaseData()">
                   <mat-icon>picture_as_pdf</mat-icon> Export PDF
                 </button>
@@ -263,13 +257,13 @@ interface DateFilter {
               <div class="date-filters">
                 <mat-form-field appearance="outline">
                   <mat-label>From Date</mat-label>
-                  <input matInput [matDatepicker]="attendanceFromPicker" [(ngModel)]="attendanceFilter().fromDate">
+                  <input matInput [matDatepicker]="attendanceFromPicker" [(ngModel)]="attendanceFilter().fromDate" (ngModelChange)="loadAttendanceReport()">
                   <mat-datepicker-toggle matSuffix [for]="attendanceFromPicker"></mat-datepicker-toggle>
                   <mat-datepicker #attendanceFromPicker></mat-datepicker>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>To Date</mat-label>
-                  <input matInput [matDatepicker]="attendanceToPicker" [(ngModel)]="attendanceFilter().toDate">
+                  <input matInput [matDatepicker]="attendanceToPicker" [(ngModel)]="attendanceFilter().toDate" (ngModelChange)="loadAttendanceReport()">
                   <mat-datepicker-toggle matSuffix [for]="attendanceToPicker"></mat-datepicker-toggle>
                   <mat-datepicker #attendanceToPicker></mat-datepicker>
                 </mat-form-field>
@@ -278,9 +272,6 @@ interface DateFilter {
                 <button mat-stroked-button (click)="setToday('attendance')">Today</button>
                 <button mat-stroked-button (click)="setThisWeek('attendance')">This Week</button>
                 <button mat-stroked-button (click)="setThisMonth('attendance')">This Month</button>
-                <button mat-raised-button color="primary" (click)="loadAttendanceReport()">
-                  <mat-icon>search</mat-icon> Run Report
-                </button>
                 <button mat-raised-button color="accent" (click)="exportToPDF('attendance')" [disabled]="!attendanceData()">
                   <mat-icon>picture_as_pdf</mat-icon> Export PDF
                 </button>
@@ -348,13 +339,13 @@ interface DateFilter {
               <div class="date-filters">
                 <mat-form-field appearance="outline">
                   <mat-label>From Date</mat-label>
-                  <input matInput [matDatepicker]="profitFromPicker" [(ngModel)]="profitFilter().fromDate">
+                  <input matInput [matDatepicker]="profitFromPicker" [(ngModel)]="profitFilter().fromDate" (ngModelChange)="loadProfitReport()">
                   <mat-datepicker-toggle matSuffix [for]="profitFromPicker"></mat-datepicker-toggle>
                   <mat-datepicker #profitFromPicker></mat-datepicker>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                   <mat-label>To Date</mat-label>
-                  <input matInput [matDatepicker]="profitToPicker" [(ngModel)]="profitFilter().toDate">
+                  <input matInput [matDatepicker]="profitToPicker" [(ngModel)]="profitFilter().toDate" (ngModelChange)="loadProfitReport()">
                   <mat-datepicker-toggle matSuffix [for]="profitToPicker"></mat-datepicker-toggle>
                   <mat-datepicker #profitToPicker></mat-datepicker>
                 </mat-form-field>
@@ -363,9 +354,6 @@ interface DateFilter {
                 <button mat-stroked-button (click)="setToday('profit')">Today</button>
                 <button mat-stroked-button (click)="setThisWeek('profit')">This Week</button>
                 <button mat-stroked-button (click)="setThisMonth('profit')">This Month</button>
-                <button mat-raised-button color="primary" (click)="loadProfitReport()">
-                  <mat-icon>search</mat-icon> Run Report
-                </button>
                 <button mat-raised-button color="accent" (click)="exportToPDF('profit')" [disabled]="!profitData()">
                   <mat-icon>picture_as_pdf</mat-icon> Export PDF
                 </button>
@@ -379,28 +367,88 @@ interface DateFilter {
                 <div class="profit-summary">
                   <mat-card class="summary-card large">
                     <mat-card-content>
-                      <div class="summary-label">Total Income</div>
+                      <div class="summary-label">Total Sales Income</div>
                       <div class="summary-value success">{{ profitData().totalIncome | currency:'LKR ':'symbol':'1.2-2' }}</div>
+                      <div class="summary-detail">{{ profitData().salesCount }} invoices</div>
+                    </mat-card-content>
+                  </mat-card>
+                  <mat-card class="summary-card large">
+                    <mat-card-content>
+                      <div class="summary-label">Total Paid Income</div>
+                      <div class="summary-value success">{{ profitData().totalPaidIncome | currency:'LKR ':'symbol':'1.2-2' }}</div>
+                      <div class="summary-detail">Actual received</div>
                     </mat-card-content>
                   </mat-card>
                   <mat-card class="summary-card large">
                     <mat-card-content>
                       <div class="summary-label">Total Expenses</div>
                       <div class="summary-value warn">{{ profitData().totalExpenses | currency:'LKR ':'symbol':'1.2-2' }}</div>
+                      <div class="summary-detail">Purchases + Operational</div>
                     </mat-card-content>
                   </mat-card>
                   <mat-card class="summary-card large">
                     <mat-card-content>
-                      <div class="summary-label">Net Profit</div>
+                      <div class="summary-label">Gross Profit</div>
                       <div class="summary-value" [class.success]="profitData().profit > 0" [class.warn]="profitData().profit < 0">
                         {{ profitData().profit | currency:'LKR ':'symbol':'1.2-2' }}
                       </div>
+                      <div class="summary-detail">{{ profitData().profitMargin }}% margin</div>
                     </mat-card-content>
                   </mat-card>
-                  <mat-card class="summary-card large">
+                </div>
+
+                <div class="expense-breakdown">
+                  <mat-card class="breakdown-card">
+                    <mat-card-header>
+                      <mat-card-title>Expense Breakdown</mat-card-title>
+                    </mat-card-header>
                     <mat-card-content>
-                      <div class="summary-label">Profit Margin</div>
-                      <div class="summary-value accent">{{ profitData().profitMargin }}%</div>
+                      <div class="breakdown-items">
+                        <div class="breakdown-item">
+                          <div class="breakdown-label">
+                            <mat-icon>shopping_cart</mat-icon>
+                            Purchase Expenses
+                          </div>
+                          <div class="breakdown-value">{{ profitData().purchaseExpenses | currency:'LKR ':'symbol':'1.2-2' }}</div>
+                          <div class="breakdown-count">{{ profitData().purchaseCount }} invoices</div>
+                        </div>
+                        <div class="breakdown-item">
+                          <div class="breakdown-label">
+                            <mat-icon>payments</mat-icon>
+                            Operational Expenses
+                          </div>
+                          <div class="breakdown-value">{{ profitData().operationalExpenses | currency:'LKR ':'symbol':'1.2-2' }}</div>
+                          <div class="breakdown-count">{{ profitData().expenseCount }} expenses</div>
+                        </div>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+
+                  <mat-card class="breakdown-card">
+                    <mat-card-header>
+                      <mat-card-title>Financial Metrics</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                      <div class="breakdown-items">
+                        <div class="breakdown-item">
+                          <div class="breakdown-label">
+                            <mat-icon>account_balance_wallet</mat-icon>
+                            Net Profit (After Payments)
+                          </div>
+                          <div class="breakdown-value" [class.success]="profitData().netProfit > 0" [class.warn]="profitData().netProfit < 0">
+                            {{ profitData().netProfit | currency:'LKR ':'symbol':'1.2-2' }}
+                          </div>
+                          <div class="breakdown-count">Based on paid invoices</div>
+                        </div>
+                        <div class="breakdown-item">
+                          <div class="breakdown-label">
+                            <mat-icon>receipt_long</mat-icon>
+                            Outstanding Receivables
+                          </div>
+                          <div class="breakdown-value accent">{{ profitData().outstandingReceivables | currency:'LKR ':'symbol':'1.2-2' }}</div>
+                          <div class="breakdown-count">Unpaid sales invoices</div>
+                        </div>
+                      </div>
                     </mat-card-content>
                   </mat-card>
                 </div>
@@ -487,6 +535,11 @@ interface DateFilter {
         &.warn { color: #ff9800; }
         &.accent { color: #2196f3; }
       }
+      .summary-detail {
+        font-size: 11px;
+        color: #999;
+        margin-top: 4px;
+      }
       &.large .summary-value {
         font-size: 28px;
       }
@@ -495,6 +548,62 @@ interface DateFilter {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 20px;
+      margin-bottom: 24px;
+    }
+    .expense-breakdown {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 20px;
+    }
+    .breakdown-card {
+      mat-card-header {
+        padding: 16px 16px 0;
+        mat-card-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #333;
+        }
+      }
+      mat-card-content {
+        padding: 16px !important;
+      }
+    }
+    .breakdown-items {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .breakdown-item {
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid #2196f3;
+      .breakdown-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 8px;
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+      }
+      .breakdown-value {
+        font-size: 20px;
+        font-weight: 600;
+        color: #333;
+        &.success { color: #4caf50; }
+        &.warn { color: #ff9800; }
+        &.accent { color: #2196f3; }
+      }
+      .breakdown-count {
+        font-size: 11px;
+        color: #999;
+        margin-top: 4px;
+      }
     }
     .report-table {
       width: 100%;
@@ -573,6 +682,13 @@ export class ReportsComponent implements OnInit {
     this.setThisMonth('purchase');
     this.setThisMonth('attendance');
     this.setThisMonth('profit');
+    
+    // Auto-load all reports
+    this.loadSalesReport();
+    this.loadPurchaseReport();
+    this.loadStockReport();
+    this.loadAttendanceReport();
+    this.loadProfitReport();
   }
 
   // Date Filter Helpers
@@ -580,6 +696,7 @@ export class ReportsComponent implements OnInit {
     const today = new Date();
     const filter = { fromDate: today, toDate: today };
     this.updateFilter(reportType, filter);
+    this.loadReportByType(reportType);
   }
 
   setThisWeek(reportType: string) {
@@ -589,6 +706,7 @@ export class ReportsComponent implements OnInit {
     startOfWeek.setDate(today.getDate() - dayOfWeek);
     const filter = { fromDate: startOfWeek, toDate: today };
     this.updateFilter(reportType, filter);
+    this.loadReportByType(reportType);
   }
 
   setThisMonth(reportType: string) {
@@ -596,6 +714,7 @@ export class ReportsComponent implements OnInit {
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     const filter = { fromDate: startOfMonth, toDate: today };
     this.updateFilter(reportType, filter);
+    this.loadReportByType(reportType);
   }
 
   private updateFilter(reportType: string, filter: any) {
@@ -615,6 +734,23 @@ export class ReportsComponent implements OnInit {
     }
   }
 
+  private loadReportByType(reportType: string) {
+    switch (reportType) {
+      case 'sales':
+        this.loadSalesReport();
+        break;
+      case 'purchase':
+        this.loadPurchaseReport();
+        break;
+      case 'attendance':
+        this.loadAttendanceReport();
+        break;
+      case 'profit':
+        this.loadProfitReport();
+        break;
+    }
+  }
+
   private formatDateParam(date: any): string {
     if (!date) return '';
     const d = date instanceof Date ? date : new Date(date);
@@ -627,7 +763,6 @@ export class ReportsComponent implements OnInit {
     const toDate = this.formatDateParam(this.salesFilter().toDate);
     
     if (!fromDate || !toDate) {
-      alert('Please select date range');
       return;
     }
 
@@ -651,7 +786,6 @@ export class ReportsComponent implements OnInit {
     const toDate = this.formatDateParam(this.purchaseFilter().toDate);
     
     if (!fromDate || !toDate) {
-      alert('Please select date range');
       return;
     }
 
@@ -689,7 +823,6 @@ export class ReportsComponent implements OnInit {
     const toDate = this.formatDateParam(this.attendanceFilter().toDate);
     
     if (!fromDate || !toDate) {
-      alert('Please select date range');
       return;
     }
 
@@ -713,7 +846,6 @@ export class ReportsComponent implements OnInit {
     const toDate = this.formatDateParam(this.profitFilter().toDate);
     
     if (!fromDate || !toDate) {
-      alert('Please select date range');
       return;
     }
 

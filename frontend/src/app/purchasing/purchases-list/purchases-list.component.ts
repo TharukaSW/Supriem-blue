@@ -14,6 +14,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 import { PurchasingService, PurchaseOrder } from '../services/purchasing.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-purchases-list',
@@ -32,7 +34,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     MatInputModule,
     MatMenuModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatDialogModule
   ],
   template: `
     <div class="page-container">
@@ -251,7 +254,8 @@ export class PurchasesListComponent implements OnInit {
   constructor(
     private purchasingService: PurchasingService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit() {
@@ -285,8 +289,7 @@ export class PurchasesListComponent implements OnInit {
   }
 
   viewPurchase(po: PurchaseOrder) {
-    // Navigate to details view (to be implemented)
-    console.log('View PO', po);
+    this.router.navigate(['/purchases', po.purchaseId]);
   }
 
   editPurchase(po: PurchaseOrder) {
@@ -294,51 +297,91 @@ export class PurchasesListComponent implements OnInit {
   }
 
   confirmPurchase(po: PurchaseOrder) {
-    if (!confirm(`Are you sure you want to confirm purchase order ${po.purchaseNo}?`)) return;
-
-    this.loading.set(true);
-    this.purchasingService.confirmPurchaseOrder(po.purchaseId).subscribe({
-      next: () => {
-        this.snackBar.open('Purchase order confirmed', 'Close', { duration: 3000 });
-        this.loadPurchases();
-      },
-      error: (err) => {
-        this.snackBar.open('Error confirming purchase order', 'Close', { duration: 3000 });
-        this.loading.set(false);
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '500px',
+      data: {
+        title: 'Confirm Purchase Order',
+        message: `Are you sure you want to confirm purchase order ${po.purchaseNo}? This action cannot be undone.`,
+        confirmText: 'Confirm Order',
+        cancelText: 'Cancel',
+        type: 'confirm'
       }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) return;
+
+      this.loading.set(true);
+      this.purchasingService.confirmPurchaseOrder(po.purchaseId).subscribe({
+        next: () => {
+          this.snackBar.open('Purchase order confirmed', 'Close', { duration: 3000 });
+          this.loadPurchases();
+        },
+        error: (err) => {
+          this.snackBar.open('Error confirming purchase order', 'Close', { duration: 3000 });
+          this.loading.set(false);
+        }
+      });
     });
   }
 
   receivePurchase(po: PurchaseOrder) {
-    if (!confirm(`Are you sure you want to mark purchase order ${po.purchaseNo} as received? This will update stock.`)) return;
-
-    this.loading.set(true);
-    this.purchasingService.receivePurchaseOrder(po.purchaseId).subscribe({
-      next: () => {
-        this.snackBar.open('Goods received successfully', 'Close', { duration: 3000 });
-        this.loadPurchases();
-      },
-      error: (err) => {
-        this.snackBar.open('Error receiving goods', 'Close', { duration: 3000 });
-        this.loading.set(false);
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '500px',
+      data: {
+        title: 'Receive Goods',
+        message: `Are you sure you want to mark purchase order ${po.purchaseNo} as received? This will update stock levels and cannot be undone.`,
+        confirmText: 'Receive Goods',
+        cancelText: 'Cancel',
+        type: 'warning'
       }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) return;
+
+      this.loading.set(true);
+      this.purchasingService.receivePurchaseOrder(po.purchaseId).subscribe({
+        next: () => {
+          this.snackBar.open('Goods received successfully', 'Close', { duration: 3000 });
+          this.loadPurchases();
+        },
+        error: (err) => {
+          this.snackBar.open('Error receiving goods', 'Close', { duration: 3000 });
+          this.loading.set(false);
+        }
+      });
     });
   }
 
   cancelPurchase(po: PurchaseOrder) {
-    const reason = prompt('Please enter a cancellation reason:');
-    if (reason === null) return; // Cancelled prompt
-
-    this.loading.set(true);
-    this.purchasingService.cancelPurchaseOrder(po.purchaseId, reason).subscribe({
-      next: () => {
-        this.snackBar.open('Purchase order cancelled', 'Close', { duration: 3000 });
-        this.loadPurchases();
-      },
-      error: (err) => {
-        this.snackBar.open('Error cancelling purchase order', 'Close', { duration: 3000 });
-        this.loading.set(false);
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '500px',
+      data: {
+        title: 'Cancel Purchase Order',
+        message: `Are you sure you want to cancel purchase order ${po.purchaseNo}?`,
+        confirmText: 'Cancel Order',
+        cancelText: 'Go Back',
+        type: 'danger',
+        requireReason: true,
+        reasonLabel: 'Cancellation Reason'
       }
+    });
+
+    dialogRef.afterClosed().subscribe(reason => {
+      if (!reason) return;
+
+      this.loading.set(true);
+      this.purchasingService.cancelPurchaseOrder(po.purchaseId, reason).subscribe({
+        next: () => {
+          this.snackBar.open('Purchase order cancelled', 'Close', { duration: 3000 });
+          this.loadPurchases();
+        },
+        error: (err) => {
+          this.snackBar.open('Error cancelling purchase order', 'Close', { duration: 3000 });
+          this.loading.set(false);
+        }
+      });
     });
   }
 }

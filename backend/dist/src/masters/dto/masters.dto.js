@@ -214,7 +214,8 @@ class CreateSupplierDto {
 }
 exports.CreateSupplierDto = CreateSupplierDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'SUP001' }),
+    (0, swagger_1.ApiPropertyOptional)({ example: 'SUP001', description: 'Auto-generated if not provided' }),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateSupplierDto.prototype, "supplierCode", void 0);
@@ -390,7 +391,8 @@ class CreateCustomerDto {
 }
 exports.CreateCustomerDto = CreateCustomerDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'CUS001' }),
+    (0, swagger_1.ApiPropertyOptional)({ example: 'CUS001', description: 'Auto-generated if not provided' }),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateCustomerDto.prototype, "customerCode", void 0);

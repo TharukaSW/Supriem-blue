@@ -69,6 +69,18 @@ export const routes: Routes = [
                 loadComponent: () => import('./purchasing/purchase-form/purchase-form.component').then(m => m.PurchaseFormComponent),
             },
             {
+                path: 'purchases/:id',
+                loadComponent: () => import('./purchasing/purchase-detail/purchase-detail.component').then(m => m.PurchaseDetailComponent),
+            },
+            {
+                path: 'purchases/:id/edit',
+                loadComponent: () => import('./purchasing/purchase-form/purchase-form.component').then(m => m.PurchaseFormComponent),
+            },
+            {
+                path: 'inventory',
+                loadComponent: () => import('./inventory/inventory.component').then(m => m.InventoryComponent),
+            },
+            {
                 path: 'sales',
                 loadComponent: () => import('./sales/sales-list/sales-list.component').then(m => m.SalesListComponent),
             },

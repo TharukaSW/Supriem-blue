@@ -167,4 +167,6 @@ export declare class MastersService {
         customerItemPriceId: bigint;
     } | null>;
     private transformCustomerPrice;
+    private generateSupplierCode;
+    private generateCustomerCode;
 }

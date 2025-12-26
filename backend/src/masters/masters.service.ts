@@ -154,7 +154,10 @@ export class MastersService {
 
     // ========== SUPPLIERS ==========
     async createSupplier(dto: CreateSupplierDto, userId: string) {
-        const existing = await this.prisma.supplier.findUnique({ where: { supplierCode: dto.supplierCode } });
+        // Auto-generate supplier code if not provided
+        const supplierCode = dto.supplierCode || await this.generateSupplierCode();
+        
+        const existing = await this.prisma.supplier.findUnique({ where: { supplierCode } });
         if (existing) throw new ConflictException('Supplier code already exists');
 
         const { items, ...supplierData } = dto;
@@ -162,6 +165,7 @@ export class MastersService {
         const supplier = await this.prisma.supplier.create({
             data: {
                 ...supplierData,
+                supplierCode,
                 createdBy: BigInt(userId),
                 updatedBy: BigInt(userId),
                 ...(items && items.length > 0 ? {
@@ -299,7 +303,10 @@ export class MastersService {
 
     // ========== CUSTOMERS ==========
     async createCustomer(dto: CreateCustomerDto, userId: string) {
-        const existing = await this.prisma.customer.findUnique({ where: { customerCode: dto.customerCode } });
+        // Auto-generate customer code if not provided
+        const customerCode = dto.customerCode || await this.generateCustomerCode();
+        
+        const existing = await this.prisma.customer.findUnique({ where: { customerCode } });
         if (existing) throw new ConflictException('Customer code already exists');
 
         const { products, ...customerData } = dto;
@@ -307,6 +314,7 @@ export class MastersService {
         const customer = await this.prisma.customer.create({
             data: {
                 ...customerData,
+                customerCode,
                 createdBy: BigInt(userId),
                 updatedBy: BigInt(userId),
                 itemPrices: {
@@ -803,5 +811,39 @@ export class MastersService {
             customer: price.customer ? this.transformCustomer(price.customer) : undefined,
             item: price.item ? this.transformItem(price.item) : undefined,
         };
+    }
+
+    // Helper method to generate supplier code
+    private async generateSupplierCode(): Promise<string> {
+        const prefix = 'SUP';
+        const lastSupplier = await this.prisma.supplier.findFirst({
+            where: { supplierCode: { startsWith: prefix } },
+            orderBy: { supplierCode: 'desc' },
+        });
+
+        let nextNumber = 1;
+        if (lastSupplier) {
+            const currentNumber = parseInt(lastSupplier.supplierCode.replace(prefix, ''), 10);
+            nextNumber = currentNumber + 1;
+        }
+
+        return `${prefix}${nextNumber.toString().padStart(3, '0')}`;
+    }
+
+    // Helper method to generate customer code
+    private async generateCustomerCode(): Promise<string> {
+        const prefix = 'CUS';
+        const lastCustomer = await this.prisma.customer.findFirst({
+            where: { customerCode: { startsWith: prefix } },
+            orderBy: { customerCode: 'desc' },
+        });
+
+        let nextNumber = 1;
+        if (lastCustomer) {
+            const currentNumber = parseInt(lastCustomer.customerCode.replace(prefix, ''), 10);
+            nextNumber = currentNumber + 1;
+        }
+
+        return `${prefix}${nextNumber.toString().padStart(3, '0')}`;
     }
 }

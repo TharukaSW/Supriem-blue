@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,6 +20,7 @@ import { ItemService, Item } from '../services/item.service';
     imports: [
         CommonModule,
         ReactiveFormsModule,
+        FormsModule,
         MatDialogModule,
         MatButtonModule,
         MatFormFieldModule,
@@ -35,14 +36,6 @@ import { ItemService, Item } from '../services/item.service';
         <h2 mat-dialog-title>{{ data.mode === 'create' ? 'Add New Customer' : 'Edit Customer' }}</h2>
         <mat-dialog-content>
             <form [formGroup]="form" class="customer-form">
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Customer Code</mat-label>
-                    <input matInput formControlName="customerCode" placeholder="CUS001" required>
-                    <mat-error *ngIf="form.get('customerCode')?.hasError('required')">
-                        Customer code is required
-                    </mat-error>
-                </mat-form-field>
-
                 <mat-form-field appearance="outline" class="full-width">
                     <mat-label>Customer Name</mat-label>
                     <input matInput formControlName="customerName" placeholder="XYZ Trading Ltd" required>
@@ -76,70 +69,83 @@ import { ItemService, Item } from '../services/item.service';
                     <textarea matInput formControlName="address" rows="3" placeholder="456 Business Park, Colombo"></textarea>
                 </mat-form-field>
 
-                @if (data.mode === 'create') {
-                    <div class="products-section">
-                        <div class="section-header">
-                            <h3>Products & Prices</h3>
-                            <button mat-stroked-button type="button" color="primary" (click)="addProduct()">
-                                <mat-icon>add</mat-icon> Add Product
-                            </button>
-                        </div>
+                <div class="products-section">
+                    <h3>Customer Products & Prices</h3>
+                    
+                    <div class="add-product-form" *ngIf="data.mode === 'create'">
+                        <mat-form-field appearance="outline" class="product-field">
+                            <mat-label>Select Product</mat-label>
+                            <mat-select [(value)]="selectedProductId">
+                                @for (item of finishedGoods(); track item.itemId) {
+                                    <mat-option [value]="item.itemId">
+                                        {{ item.itemCode }} - {{ item.itemName }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
 
-                        @if (products.length > 0) {
-                            <table class="products-table">
-                                <thead>
-                                    <tr>
-                                        <th>Product</th>
-                                        <th>Price (Rs.)</th>
-                                        <th>Effective Date</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody formArrayName="products">
-                                    @for (product of products.controls; track $index) {
-                                        <tr [formGroupName]="$index">
-                                            <td>
-                                                <mat-form-field appearance="outline" class="table-field">
-                                                    <mat-select formControlName="itemId" required>
-                                                        @for (item of finishedGoods(); track item.itemId) {
-                                                            <mat-option [value]="item.itemId">
-                                                                {{ item.itemName }} ({{ item.itemCode }})
-                                                            </mat-option>
-                                                        }
-                                                    </mat-select>
-                                                </mat-form-field>
-                                            </td>
-                                            <td>
-                                                <mat-form-field appearance="outline" class="table-field">
-                                                    <input matInput type="number" formControlName="unitPrice" 
-                                                           placeholder="0.00" min="0.01" step="0.01" required>
-                                                </mat-form-field>
-                                            </td>
-                                            <td>
-                                                <mat-form-field appearance="outline" class="table-field">
-                                                    <input matInput [matDatepicker]="picker" formControlName="effectiveFrom">
-                                                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                                                    <mat-datepicker #picker></mat-datepicker>
-                                                </mat-form-field>
-                                            </td>
-                                            <td class="action-cell">
-                                                <button mat-icon-button type="button" color="warn" 
-                                                        (click)="removeProduct($index)">
-                                                    <mat-icon>delete</mat-icon>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        } @else {
-                            <div class="no-products">
-                                <mat-icon>inventory_2</mat-icon>
-                                <p>No products added yet. Add at least one product.</p>
-                            </div>
-                        }
+                        <mat-form-field appearance="outline" class="price-field">
+                            <mat-label>Unit Price</mat-label>
+                            <input matInput type="number" step="0.01" min="0.01" [(ngModel)]="newProductPrice" [ngModelOptions]="{standalone: true}" placeholder="0.00">
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="date-field">
+                            <mat-label>Effective From</mat-label>
+                            <input matInput [matDatepicker]="picker" [(ngModel)]="newProductEffectiveFrom" [ngModelOptions]="{standalone: true}">
+                            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                            <mat-datepicker #picker></mat-datepicker>
+                        </mat-form-field>
+
+                        <button mat-icon-button color="primary" (click)="addProduct()" [disabled]="!selectedProductId || !newProductPrice">
+                            <mat-icon>add</mat-icon>
+                        </button>
                     </div>
-                }
+
+                    <div class="products-list-section">
+                        <div *ngIf="products.length > 0" class="products-count-badge">
+                            {{ products.length }} product{{ products.length > 1 ? 's' : '' }} added
+                        </div>
+                        
+                        <table mat-table [dataSource]="productsDataSource" class="products-table" *ngIf="products.length > 0">
+                            <ng-container matColumnDef="product">
+                                <th mat-header-cell *matHeaderCellDef>Product</th>
+                                <td mat-cell *matCellDef="let productControl">
+                                    {{ getProductName(productControl.get('itemId')?.value) }}
+                                </td>
+                            </ng-container>
+
+                            <ng-container matColumnDef="unitPrice">
+                                <th mat-header-cell *matHeaderCellDef>Unit Price</th>
+                                <td mat-cell *matCellDef="let productControl">
+                                    Rs. {{ productControl.get('unitPrice')?.value | number:'1.2-2' }}
+                                </td>
+                            </ng-container>
+
+                            <ng-container matColumnDef="effectiveFrom">
+                                <th mat-header-cell *matHeaderCellDef>Effective From</th>
+                                <td mat-cell *matCellDef="let productControl">
+                                    {{ productControl.get('effectiveFrom')?.value | date:'mediumDate' }}
+                                </td>
+                            </ng-container>
+
+                            <ng-container matColumnDef="actions">
+                                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                                <td mat-cell *matCellDef="let productControl; let i = index">
+                                    <button mat-icon-button color="warn" (click)="removeProduct(i)" *ngIf="data.mode === 'create'" title="Remove product">
+                                        <mat-icon>delete</mat-icon>
+                                    </button>
+                                </td>
+                            </ng-container>
+
+                            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                        </table>
+
+                        <p *ngIf="products.length === 0" class="no-products error-message">
+                            {{ data.mode === 'create' ? '⚠ At least one product is required. Add products using the form above.' : 'No products added yet. Use the Customer Prices dialog to manage prices.' }}
+                        </p>
+                    </div>
+                </div>
             </form>
         </mat-dialog-content>
         <mat-dialog-actions align="end">
@@ -150,12 +156,17 @@ import { ItemService, Item } from '../services/item.service';
         </mat-dialog-actions>
     `,
     styles: [`
+        :host ::ng-deep .mat-mdc-dialog-container {
+            width: auto !important;
+            max-width: none !important;
+        }
+
         .customer-form {
             display: flex;
             flex-direction: column;
             gap: 16px;
-            min-width: 700px;
-            max-width: 900px;
+            min-width: 800px;
+            max-width: 1100px;
             padding: 20px 0;
         }
 
@@ -174,61 +185,89 @@ import { ItemService, Item } from '../services/item.service';
 
         .products-section {
             margin-top: 24px;
+            padding-top: 24px;
             border-top: 1px solid #e0e0e0;
-            padding-top: 16px;
         }
 
-        .section-header {
+        .products-section h3 {
+            margin: 0 0 16px 0;
+            font-size: 16px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.87);
+        }
+
+        .add-product-form {
             display: flex;
-            justify-content: space-between;
+            gap: 12px;
             align-items: center;
             margin-bottom: 16px;
         }
 
-        .section-header h3 {
-            margin: 0;
-            font-size: 16px;
+        .product-field {
+            flex: 2;
+        }
+
+        .price-field {
+            flex: 1;
+        }
+
+        .date-field {
+            flex: 1;
+        }
+
+        .products-list-section {
+            position: relative;
+            margin-top: 16px;
+        }
+
+        .products-count-badge {
+            display: inline-block;
+            background: #1976d2;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
             font-weight: 500;
+            margin-bottom: 12px;
         }
 
         .products-table {
             width: 100%;
-            border-collapse: collapse;
+            margin-top: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
         }
 
         .products-table th {
-            text-align: left;
-            padding: 8px;
-            background-color: #f5f5f5;
             font-weight: 500;
-            border-bottom: 2px solid #e0e0e0;
+            color: rgba(0, 0, 0, 0.87);
+            background-color: #f5f5f5;
         }
 
-        .products-table td {
-            padding: 4px 8px;
-            vertical-align: middle;
+        .products-table td, .products-table th {
+            padding: 12px 8px;
         }
 
-        .table-field {
-            width: 100%;
-        }
-
-        .table-field ::ng-deep .mat-mdc-form-field-wrapper {
-            padding-bottom: 0;
+        .products-table tr:hover {
+            background-color: #f5f5f5;
         }
 
         .no-products {
             text-align: center;
-            padding: 32px;
-            color: #666;
+            color: rgba(0, 0, 0, 0.54);
+            padding: 24px;
+            font-style: italic;
         }
 
-        .no-products mat-icon {
-            font-size: 48px;
-            width: 48px;
-            height: 48px;
-            margin-bottom: 8px;
-            color: #999;
+        .no-products.error-message {
+            color: #d32f2f;
+            font-weight: 500;
+        }
+
+        mat-dialog-content {
+            max-height: 70vh;
+            overflow-y: auto;
         }
     `]
 })
@@ -236,6 +275,11 @@ export class CustomerFormDialogComponent implements OnInit {
     form!: FormGroup;
     saving = false;
     finishedGoods = signal<Item[]>([]);
+    selectedProductId: string = '';
+    newProductPrice: number | null = null;
+    newProductEffectiveFrom: Date = new Date();
+    displayedColumns: string[] = ['product', 'unitPrice', 'effectiveFrom', 'actions'];
+    productsDataSource: any[] = [];
 
     constructor(
         private fb: FormBuilder,
@@ -252,10 +296,6 @@ export class CustomerFormDialogComponent implements OnInit {
 
     ngOnInit() {
         this.form = this.fb.group({
-            customerCode: [
-                { value: this.data.customer?.customerCode || '', disabled: this.data.mode === 'edit' },
-                [Validators.required]
-            ],
             customerName: [this.data.customer?.customerName || '', [Validators.required]],
             contactName: [this.data.customer?.contactName || ''],
             phone: [this.data.customer?.phone || ''],
@@ -264,9 +304,22 @@ export class CustomerFormDialogComponent implements OnInit {
             products: this.fb.array([]),
         });
 
-        if (this.data.mode === 'create') {
-            this.loadFinishedGoods();
+        // Load finished goods for selection
+        this.loadFinishedGoods();
+
+        // Load existing prices if editing
+        if (this.data.mode === 'edit' && this.data.customer?.itemPrices) {
+            this.data.customer.itemPrices.forEach(price => {
+                this.products.push(this.fb.group({
+                    itemId: [price.itemId],
+                    unitPrice: [price.unitPrice],
+                    effectiveFrom: [price.effectiveFrom]
+                }));
+            });
         }
+        
+        // Initialize data source
+        this.updateDataSource();
     }
 
     loadFinishedGoods() {
@@ -280,17 +333,49 @@ export class CustomerFormDialogComponent implements OnInit {
         });
     }
 
+    updateDataSource() {
+        this.productsDataSource = [...this.products.controls];
+    }
+
     addProduct() {
-        const productGroup = this.fb.group({
-            itemId: ['', Validators.required],
-            unitPrice: [0, [Validators.required, Validators.min(0.01)]],
-            effectiveFrom: [new Date()],
-        });
-        this.products.push(productGroup);
+        if (this.selectedProductId && this.newProductPrice && this.newProductPrice > 0) {
+            const productExists = this.products.controls.some(
+                control => control.get('itemId')?.value === this.selectedProductId
+            );
+
+            if (productExists) {
+                this.snackBar.open('This product is already added', 'Close', { duration: 3000 });
+                return;
+            }
+
+            this.products.push(this.fb.group({
+                itemId: [this.selectedProductId],
+                unitPrice: [this.newProductPrice],
+                effectiveFrom: [this.newProductEffectiveFrom || new Date()]
+            }));
+
+            // Update the data source to refresh the table
+            this.updateDataSource();
+
+            // Get product name for success message
+            const productName = this.getProductName(this.selectedProductId);
+            this.snackBar.open(`Added: ${productName}`, 'Close', { duration: 2000 });
+
+            // Reset inputs
+            this.selectedProductId = '';
+            this.newProductPrice = null;
+            this.newProductEffectiveFrom = new Date();
+        }
     }
 
     removeProduct(index: number) {
         this.products.removeAt(index);
+        this.updateDataSource();
+    }
+
+    getProductName(itemId: string): string {
+        const item = this.finishedGoods().find(i => i.itemId === itemId);
+        return item ? `${item.itemCode} - ${item.itemName}` : itemId;
     }
 
     isFormValid(): boolean {

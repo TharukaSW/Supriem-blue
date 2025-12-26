@@ -6,10 +6,12 @@ import { environment } from '../../../environments/environment';
 export interface PurchaseOrder {
   purchaseId: string;
   purchaseNo: string;
+  supplierId: string;
   supplier: any;
   purchaseDate: string;
   status: string;
   notes?: string;
+  cancellationReason?: string;
   subtotal: number;
   discount: number;
   tax: number;

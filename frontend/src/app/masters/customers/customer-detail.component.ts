@@ -482,7 +482,6 @@ export class CustomerDetailComponent implements OnInit {
 
     editCustomer() {
         const dialogRef = this.dialog.open(CustomerFormDialogComponent, {
-            width: '600px',
             data: { mode: 'edit', customer: this.customer() }
         });
 

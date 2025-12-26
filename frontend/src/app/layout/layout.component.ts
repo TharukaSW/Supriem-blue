@@ -140,6 +140,7 @@ export class LayoutComponent {
     { label: 'Suppliers', icon: 'local_shipping', route: '/suppliers', roles: ['ADMIN', 'MANAGER'] },
     { label: 'Customers', icon: 'groups', route: '/customers', roles: ['ADMIN', 'MANAGER'] },
     { label: 'Purchases', icon: 'shopping_cart', route: '/purchases', roles: ['ADMIN', 'MANAGER'] },
+    { label: 'Inventory', icon: 'inventory', route: '/inventory', roles: ['ADMIN', 'MANAGER'] },
     { label: 'Sales', icon: 'point_of_sale', route: '/sales', roles: ['ADMIN', 'MANAGER'] },
     { label: 'Production', icon: 'factory', route: '/production', roles: ['ADMIN', 'MANAGER'] },
     { label: 'Invoices', icon: 'receipt_long', route: '/invoices', roles: ['ADMIN', 'MANAGER'] },
