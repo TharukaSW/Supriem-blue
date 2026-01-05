@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -29,7 +29,6 @@ interface StockItem {
 @Component({
     selector: 'app-inventory',
     standalone: true,
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         CommonModule,
         FormsModule,
@@ -95,7 +94,7 @@ interface StockItem {
                     <div class="filters">
                         <mat-form-field appearance="outline" class="search-field">
                             <mat-label>Search Items</mat-label>
-                            <input matInput [(ngModel)]="searchText" (ngModelChange)="onSearchTextChange()" placeholder="Search by code or name...">
+                            <input matInput [(ngModel)]="searchText" (ngModelChange)="applyFilters()" placeholder="Search by code or name...">
                             <mat-icon matPrefix>search</mat-icon>
                         </mat-form-field>
 
@@ -215,7 +214,7 @@ interface StockItem {
                                 </ng-container>
 
                                 <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                                <tr mat-row *matRowDef="let row; columns: displayedColumns; trackBy: trackByItem" class="inventory-row"></tr>
+                                <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="inventory-row"></tr>
                             </table>
                         </div>
                     }
@@ -503,10 +502,6 @@ export class InventoryComponent implements OnInit {
     selectedType = '';
     stockFilter = '';
 
-    private searchDebounceTimer: ReturnType<typeof setTimeout> | undefined;
-
-    trackByItem = (_index: number, item: StockItem) => item.itemId;
-
     displayedColumns = ['itemCode', 'itemName', 'itemType', 'qtyOnHand', 'status', 'lastUpdated'];
 
     // Computed values for summary cards
@@ -522,11 +517,6 @@ export class InventoryComponent implements OnInit {
 
     ngOnInit() {
         this.loadInventory();
-    }
-
-    onSearchTextChange() {
-        if (this.searchDebounceTimer) clearTimeout(this.searchDebounceTimer);
-        this.searchDebounceTimer = setTimeout(() => this.applyFilters(), 200);
     }
 
     loadInventory() {
