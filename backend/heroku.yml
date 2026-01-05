@@ -1,0 +1,9 @@
+build:
+  languages:
+    - nodejs
+run:
+  web: npm run start:prod
+release:
+  command:
+    - npx prisma migrate deploy
+    - npx prisma generate

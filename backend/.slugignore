@@ -1,0 +1,12 @@
+# Files to ignore during Heroku build
+*.md
+.git
+.gitignore
+.env
+.env.example
+test/
+coverage/
+*.spec.ts
+*.test.ts
+.prettierrc
+eslint.config.mjs
