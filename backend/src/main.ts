@@ -4,6 +4,10 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { join } from 'path';
 import * as express from 'express';
+import * as dotenv from 'dotenv';
+
+// Load environment variables from .env (if present) so Prisma/Nest can access them.
+dotenv.config();
 
 // Fix BigInt serialization for JSON responses
 // @ts-ignore
